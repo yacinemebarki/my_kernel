@@ -17,4 +17,6 @@ void kernel(){
     print_char('l', 9);
     print_char('d', 10);
     while (1);
+    
 }
+

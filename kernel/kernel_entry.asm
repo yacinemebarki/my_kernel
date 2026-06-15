@@ -5,4 +5,6 @@ extern kernel
 
 start:
     call kernel
-    jmp $
+    
+hang:
+    jmp hang

@@ -1,28 +1,26 @@
 ORG 0x7C00
 BITS 16
 
-boot:
+start:
     cli
-    cld
-
-    mov ax, 0x1000
+    mov ax,0x00
+    mov ds, ax
     mov es, ax
-    xor bx, bx
+    mov sp, 0x7C00
+    mov si, msg
 
-    mov ah, 0x02      
-    mov al, 30        
-    mov ch, 0
-    mov cl, 2         
-    mov dh, 0
+print:
+    lodsb
+    cmp al,0
+    je hang
+    mov ah,0x0E
+    int 0x10
+    jmp print
 
-    int 0x13
-    jc disk_error     
+hang:
+    jmp hang
 
-    jmp 0x1000:0x0000
+msg: db "welecom to my kernel",0
 
-disk_error:
-    hlt
-    jmp $
-
-TIMES 510-($-$$) db 0
-DW 0xAA55
+TIMES 510-($-$$) db 0 
+dw 0xAA55

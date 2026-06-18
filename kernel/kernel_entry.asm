@@ -4,9 +4,9 @@ global start
 extern kernel
 
 start:
-    mov ah,0x0E
-    mov al,"H"
-    int 0x10
-    
+    call kernel
+    jmp hang
+
 hang:
     jmp hang
+    

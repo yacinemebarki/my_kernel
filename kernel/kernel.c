@@ -11,10 +11,23 @@ void kernel(){
     int space = 80;
     while (1){
         char c = read();
-        if(c != '\0' ){
-            print(c, i);
-            i++;
-            c = '\0';
+        if(c != 0){
+            if(c == '\n'){
+                //move cursor function will be add 
+                i = i + space;
+            }
+            else if(c == ' '){
+                //mov cursor function will be add
+                i++;
+            }
+            else if(c == '\b'){
+                //clear_char function will be add
+                i--;
+            }
+            else {
+                print(c, i);
+                i++;
+            }
         }
     }
     

@@ -1,6 +1,14 @@
+static inline unsigned char inb(unsigned short port){
+    unsigned char result;
+    __asm__ volatile("inb %1, %0" : "=a"(result) : "Nd"(port));
+    return result;
+}
+
 char read(){
     unsigned char code;
-    __asm__ volatile("inb $0x60, %0" : "=a"(code));
+
+    while (!(inb(0x64) & 1));
+    code = inb(0x60);
 
     if(code & 0x80)
         return 0;
@@ -44,10 +52,10 @@ char read(){
         case 0x15: return 'y';
         case 0x2C: return 'z';
 
-        case 0x1C: return '\n';   
+        case 0x1C: return '\n';
         case 0x39: return ' ';
-        case 0x0E: return '\b';    
+        case 0x0E: return '\b';
 
-        default: return '\0';        
+        default: return 0;
     }
 }

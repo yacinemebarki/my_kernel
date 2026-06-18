@@ -6,7 +6,7 @@ DATA_OFFSET equ 0x10
 
 start:
     cli
-    
+
     xor ax, ax
     mov ds, ax
     mov es, ax
@@ -18,7 +18,7 @@ start:
     xor bx, bx
 
     mov ah, 0x02      
-    mov al, 1         
+    mov al, 16       
     mov ch, 0         
     mov cl, 2        
     mov dh, 0         

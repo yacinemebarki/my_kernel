@@ -14,6 +14,8 @@ KERNEL_C = kernel/kernel.c
 KERNEL_ENTRY = kernel/kernel_entry.asm
 KEYBOARD_C = kernel/keyboard.c
 KEYBOARD_O = kernel/keyboard.o
+VGA_C = kernel/vga.c 
+VGA_O = kernel/vga.o
 
 BOOT_BIN = boot/boot.bin
 KERNEL_BIN = kernel.bin
@@ -31,8 +33,9 @@ boot:
 kernel:
 	$(CC) $(CFLAGS) $(KERNEL_C) -o $(KERNEL_O)
 	$(CC) $(CFLAGS) $(KEYBOARD_C) -o $(KEYBOARD_O)
+	$(CC) $(CFLAGS) $(VGA_C) -o $(VGA_O)
 	nasm -f elf32 $(KERNEL_ENTRY) -o $(KERNEL_ENTRY_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KERNEL_O) $(KEYBOARD_O)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KERNEL_O) $(KEYBOARD_O) $(VGA_O)
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

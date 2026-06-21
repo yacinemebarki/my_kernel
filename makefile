@@ -3,8 +3,8 @@ CC = gcc
 LD = ld
 
 ASFLAGS = -f elf32
-CFLAGS = -ffreestanding -m32 -nostdlib -c
-LDFLAGS = -T link.ld -m elf_i386
+CFLAGS = -ffreestanding -m32 -nostdlib -c -fno-pic -fno-pie
+LDFLAGS = -m elf_i386 -T link.ld
 
 KERNEL = kernel.elf
 IMG = disk.img
@@ -14,6 +14,8 @@ KERNEL_C = kernel/kernel.c
 KERNEL_ENTRY = kernel/kernel_entry.asm
 KEYBOARD_C = kernel/keyboard.c
 KEYBOARD_O = kernel/keyboard.o
+KEYBOARD_ISR = kernel/keyboard_isr.asm
+KEYBOARD_ISR_O = kernel/keyboard_isr.o
 VGA_C = kernel/vga.c 
 VGA_O = kernel/vga.o
 IDT_C = kernel/idt.c 
@@ -38,7 +40,8 @@ kernel:
 	$(CC) $(CFLAGS) $(VGA_C) -o $(VGA_O)
 	$(CC) $(CFLAGS) $(IDT_C) -o $(IDT_O)  
 	nasm -f elf32 $(KERNEL_ENTRY) -o $(KERNEL_ENTRY_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KERNEL_O) $(KEYBOARD_O) $(VGA_O) $(IDT_O)
+	nasm -f elf32 $(KEYBOARD_ISR) -o $(KEYBOARD_ISR_O)
+	$(LD) $(LDFLAGS) -o $(KERNEL) \$(KERNEL_ENTRY_O) \$(KEYBOARD_ISR_O) \$(KERNEL_O) \$(KEYBOARD_O) \$(VGA_O) \$(IDT_O)
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

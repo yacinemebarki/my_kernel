@@ -7,7 +7,6 @@ static inline unsigned char inb(unsigned short port){
 char read(){
     unsigned char code;
 
-    while (!(inb(0x64) & 1));
     code = inb(0x60);
 
     if(code & 0x80)

@@ -1,20 +1,27 @@
+//imports from other files
 #include "keyboard.h"
 #include "vga.h"
 #include "idt.h"
 #include "types.h"
+#include "pit.h"
+#include "asm_operation.h"
 
+
+//avoid ide error
 extern void keyboard_isr();
+extern void irq0();
 
+//idt attribute table and pointer
 struct idt_pointer ptr;
 struct interrupt_des idt[256];
 
+//screen atribute
 int i = 640;
 int space = 80;
 int j = 0;
 
-static inline void outb(uint16_t port, uint8_t value){
-    __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
-}
+//pic remap
+
 
 static inline void remap_pic(void){
     outb(0x20, 0x11);
@@ -28,7 +35,9 @@ static inline void remap_pic(void){
     outb(0x21, 0x00);
     outb(0xA1, 0x00);
 }
+//handler
 
+//keyboard handler
 __attribute__((used, externally_visible))
 void keyboard_handler(void){
     char c = read();
@@ -54,16 +63,30 @@ void keyboard_handler(void){
         i++;
         j++;
     }
+    outb(0x20, 0x20);
+}
+//time handler
+
+volatile unsigned long ticks = 0;
+
+void irq0_handler(){ 
+    ticks++;  
+    outb(0x20, 0x20);
 }
 
-void kernel(){
+
+void kernel(){   
     ptr.limit = sizeof(idt) - 1;
     ptr.base = (uint32_t)&idt;
     remap_pic();
-    outb(0x21, 0xFD);
+    outb(0x21, 0xFC);
     add(33, (uint32_t)keyboard_isr, idt);
+    add(32, (uint32_t)irq0, idt);
     load_idt(&ptr);
     __asm__ volatile("sti");
+
+    //init pit
+    pit_init(11931);
 
     while (1){
     }

@@ -6,6 +6,10 @@
 #include "pit.h"
 #include "asm_operation.h"
 
+//define
+#define HZ 100
+#define TIME_POS 0
+
 
 //avoid ide error
 extern void keyboard_isr();
@@ -74,6 +78,11 @@ void irq0_handler(){
     outb(0x20, 0x20);
 }
 
+void get_seconds(void){
+    unsigned long second = ticks / HZ;
+    print_number(second, TIME_POS);
+}
+
 
 void kernel(){   
     ptr.limit = sizeof(idt) - 1;
@@ -87,7 +96,13 @@ void kernel(){
 
     //init pit
     pit_init(11931);
+    unsigned long last = 0;
 
     while (1){
+        unsigned long sec = ticks / 100;
+        if (sec != last){
+            last = sec;
+            get_seconds();
+        }
     }
 }

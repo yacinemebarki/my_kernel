@@ -4,5 +4,6 @@
 void print(char c, int i);
 void clear(int i);
 void move(unsigned short port);
+void print_number(unsigned long n, int i);
 
 #endif

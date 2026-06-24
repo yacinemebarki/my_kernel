@@ -8,7 +8,9 @@
 
 //define
 #define HZ 100
-#define TIME_POS 0
+#define TIME_POS 240
+#define up_pos 0
+#define start_pos 480
 
 
 //avoid ide error
@@ -62,10 +64,12 @@ void keyboard_handler(void){
         i--;
         j--;
         clear(i);
+        move(i);
     }else {
         print(c, i);
         i++;
         j++;
+        move(i);
     }
     outb(0x20, 0x20);
 }
@@ -84,7 +88,14 @@ void get_seconds(void){
 }
 
 
-void kernel(){   
+void kernel(){
+    //fix the screen
+    clear_screen();
+    print_string("hello world", &i);
+    print_time_message("Up Time", up_pos);
+    print_time_message("start os", start_pos);
+
+    //add the interruptions
     ptr.limit = sizeof(idt) - 1;
     ptr.base = (uint32_t)&idt;
     remap_pic();
@@ -98,7 +109,9 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
 
+
     while (1){
+        //time track
         unsigned long sec = ticks / 100;
         if (sec != last){
             last = sec;

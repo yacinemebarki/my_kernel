@@ -11,17 +11,16 @@ void print(char c, int i){
     char *line = (char *)0xB8000;
     line[2 * i] = c;
     line[2 * i + 1] = 0x0F;
-    move(i+1);
 }
 
 void clear(int i){
     char *line = (char *)0xB8000;
     line[2 * i] = ' ';
-    move(i);
 }
 
 void print_number(unsigned long n,int i){
     char buffer[20];
+    int pos = 0;
     
     if(n == 0){
         print('0', i);
@@ -30,7 +29,7 @@ void print_number(unsigned long n,int i){
     }
     int counter = 0;
     while (n > 0){
-        buffer[i++] = (n % 10) + '0';
+        buffer[pos++] = (n % 10) + '0';
         n /= 10;
         counter++;
     }
@@ -39,7 +38,31 @@ void print_number(unsigned long n,int i){
         print(buffer[counter], i);
         i++;
     }
-    
+}
 
+void print_time_message(char *str, int i){
+    int k = 0;
+    while (str[k] != '\0'){
+        print(str[k], i);
+        k++;
+        (i)++;
+    }
+}
+
+void print_string(char *str, int *i){
+    int k = 0;
+    while (str[k] != '\0'){
+        print(str[k], *i);
+        k++;
+        (*i)++;
+    }
+    move(*i);
+}
+
+void clear_screen(){
+    unsigned short *vga = (unsigned short*)0xB8000;
+    for(int i = 0; i < 2000; i++){
+        vga[i] = 0x0720;
+    }
 }
 

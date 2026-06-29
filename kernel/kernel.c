@@ -5,7 +5,6 @@
 #include "types.h"
 #include "pit.h"
 #include "asm_operation.h"
-#include "pmm.h"
 
 //define
 #define HZ 100

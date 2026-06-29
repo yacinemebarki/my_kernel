@@ -4,6 +4,59 @@ BITS 16
 CODE_OFFSET equ 0x08
 DATA_OFFSET equ 0x10
 
+mm_ent equ 0x8000
+
+do_e820:
+    mov di, 0x8004
+    xor ebx, ebx
+    xor bp, bp
+    mov edx, 0x0534D4150
+    mov eax, 0xE820
+    mov [es:di+20], dword 1
+    mov ecx, 24
+    int 0x015
+    jc shord failed
+    mov edx, 0x0534D4150
+    cmp eax, edx
+    test ebx,ebx
+    je short failed
+    jmp short loopp
+
+search:
+    mov eax, 0xE820
+    mov [es:di + 20], dword 1
+    mov ecx,24
+    int 0x015
+    jc loop
+    mov edx,0x0534D4150
+
+loopp:
+    jcxz skip
+    cmp cl,20
+    jbe short next
+    test byte [es:di + 20], 1	
+	je short end
+
+next:
+    mov ecx, [es:di + 8]
+    or ecx, [es:di + 12]
+    jz skip
+    inc bp
+    add di, 24
+
+skip:
+    test ebx, ebx
+    jne short end
+
+end:
+    mov [es:mmap_en], bp
+    clc
+    ret
+
+failed:
+    sts
+    ret
+
 start:
     cli
 

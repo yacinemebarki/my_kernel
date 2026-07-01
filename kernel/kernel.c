@@ -5,6 +5,7 @@
 #include "types.h"
 #include "pit.h"
 #include "asm_operation.h"
+#include "pmm.h"
 
 //define
 #define HZ 100
@@ -109,6 +110,7 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
 
+    search(1240, 0);
 
     while (1){
         //time track

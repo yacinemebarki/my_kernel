@@ -24,6 +24,8 @@ PIT_C = kernel/pit.c
 PIT_O = kernel/pit.o
 PIT_ISR = kernel/irqo.asm
 PIT_ISR_O = kernel/irqo.o
+PMM_C = kernel/pmm.c
+PMM_O = kernel/pmm.o
 
 BOOT_BIN = boot/boot.bin
 KERNEL_BIN = kernel.bin
@@ -44,10 +46,11 @@ kernel:
 	$(CC) $(CFLAGS) $(VGA_C) -o $(VGA_O)
 	$(CC) $(CFLAGS) $(IDT_C) -o $(IDT_O)
 	$(CC) $(CFLAGS) $(PIT_C) -o $(PIT_O) 
+	$(CC) $(CFLAGS) $(PMM_C) -o $(PMM_O)
 	nasm -f elf32 $(KERNEL_ENTRY) -o $(KERNEL_ENTRY_O)
 	nasm -f elf32 $(KEYBOARD_ISR) -o $(KEYBOARD_ISR_O)
 	nasm -f elf32 $(PIT_ISR) -o $(PIT_ISR_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) \$(KERNEL_ENTRY_O) \$(KEYBOARD_ISR_O) \$(PIT_ISR_O) \$(KERNEL_O) \$(KEYBOARD_O) \$(PIT_O) \$(VGA_O) \$(IDT_O)
+	$(LD) $(LDFLAGS) -o $(KERNEL) \$(KERNEL_ENTRY_O) \$(KEYBOARD_ISR_O) \$(PIT_ISR_O) \$(KERNEL_O) \$(KEYBOARD_O) \$(PIT_O) \$(VGA_O) \$(IDT_O) \$(PMM_O)
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

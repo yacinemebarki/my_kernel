@@ -91,7 +91,7 @@ void get_seconds(void){
 void kernel(){
     //fix the screen
     clear_screen();
-    print_string("hello world", &i);
+    print_string("hello world", &i, &j);
     print_time_message("Up Time", up_pos);
     print_time_message("start os", start_pos);
 

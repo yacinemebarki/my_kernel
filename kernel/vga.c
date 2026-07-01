@@ -49,12 +49,13 @@ void print_time_message(char *str, int i){
     }
 }
 
-void print_string(char *str, int *i){
+void print_string(char *str, int *i, int *j){
     int k = 0;
     while (str[k] != '\0'){
         print(str[k], *i);
         k++;
         (*i)++;
+        (*j)++;
     }
     move(*i);
 }

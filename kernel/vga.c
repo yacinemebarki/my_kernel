@@ -18,13 +18,13 @@ void clear(int i){
     line[2 * i] = ' ';
 }
 
-void print_number(unsigned long n,int i){
-    char buffer[20];
+void print_number(unsigned long n,int *i){
+    char buffer[21];
     int pos = 0;
     
     if(n == 0){
-        print('0', i);
-        i++;
+        print('0', *i);
+        (*i)++;
         return;
     }
     int counter = 0;
@@ -35,8 +35,8 @@ void print_number(unsigned long n,int i){
     }
     while (counter > 0){
         counter--;  
-        print(buffer[counter], i);
-        i++;
+        print(buffer[counter], *i);
+        (*i)++;
     }
 }
 

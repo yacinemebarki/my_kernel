@@ -85,7 +85,8 @@ void irq0_handler(){
 
 void get_seconds(void){
     unsigned long second = ticks / HZ;
-    print_number(second, TIME_POS);
+    int pos = TIME_POS;
+    print_number(second, &pos);
 }
 
 
@@ -110,7 +111,7 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
 
-    search(1240, 0);
+    search(720, 0);
 
     while (1){
         //time track

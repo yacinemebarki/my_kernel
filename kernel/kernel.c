@@ -110,8 +110,9 @@ void kernel(){
     //init pit
     pit_init(11931);
     unsigned long last = 0;
-
-    search(720, 0);
+    unsigned long test = 0;
+    allocate(200);
+    search(640, 0);
 
     while (1){
         //time track
@@ -119,6 +120,12 @@ void kernel(){
         if (sec != last){
             last = sec;
             get_seconds();
+            test++;
         }
+        if(test == 10){
+            free(0);
+            search(640, 0);
+        }
+        
     }
 }

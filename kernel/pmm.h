@@ -7,7 +7,13 @@ typedef struct {
     unsigned long long length;
     unsigned int type;
     unsigned int acpi;    
-} Memory_Map;
+} __attribute__((packed))Memory_Map;
+
+extern uint16_t *entry;
+extern Memory_Map *map;
+
 void search(int i, int j);
+void allocate(unsigned long long size);
+void free(unsigned long long add);
 
 #endif

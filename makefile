@@ -27,6 +27,7 @@ PIT_ISR_O = kernel/irqo.o
 PMM_C = kernel/pmm.c
 PMM_O = kernel/pmm.o
 
+
 BOOT_BIN = boot/boot.bin
 KERNEL_BIN = kernel.bin
 KERNEL_O = kernel/kernel.o

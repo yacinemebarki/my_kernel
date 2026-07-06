@@ -17,6 +17,8 @@
 //avoid ide error
 extern void keyboard_isr();
 extern void irq0();
+extern void load_page_directory(uint32_t *directory);
+extern void enable_paging(void);
 
 //idt attribute table and pointer
 struct idt_pointer ptr;
@@ -97,6 +99,15 @@ void kernel(){
     print_time_message("Up Time", up_pos);
     print_time_message("start os", start_pos);
 
+    //start pagging
+    build_first_page();
+    load_page_directory(page_directory);
+    enable_paging();
+
+    int *x = (int *)0x2000;
+    *x = 1234;
+    print_number(*x, &i);
+
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;
     ptr.base = (uint32_t)&idt;
@@ -111,8 +122,6 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
     unsigned long test = 0;
-    allocate(200);
-    search(640, 0);
 
     while (1){
         //time track
@@ -120,11 +129,6 @@ void kernel(){
         if (sec != last){
             last = sec;
             get_seconds();
-            test++;
-        }
-        if(test == 10){
-            free(0);
-            search(640, 0);
         }
         
     }

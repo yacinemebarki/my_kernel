@@ -11,8 +11,8 @@ typedef struct {
 
 extern uint16_t *entry;
 extern Memory_Map *map;
-extern  page_directory[1024] __attribute__((aligned(4096)));
-extern  page_table[1024] __attribute__((aligned(4096)));
+extern uint32_t page_directory[1024] __attribute__((aligned(4096)));
+extern uint32_t page_table[1024] __attribute__((aligned(4096)));
 
 void search(int i, int j);
 void allocate(unsigned long long size);

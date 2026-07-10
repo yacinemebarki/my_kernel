@@ -2,12 +2,13 @@
 #define PMM_H
 #include "types.h"
 
-typedef struct {
+typedef struct
+{
     unsigned long long base;
     unsigned long long length;
     unsigned int type;
-    unsigned int acpi;    
-} __attribute__((packed))Memory_Map;
+    unsigned int acpi;
+} __attribute__((packed)) Memory_Map;
 
 extern uint16_t *entry;
 extern Memory_Map *map;
@@ -15,7 +16,8 @@ extern uint32_t page_directory[1024] __attribute__((aligned(4096)));
 extern uint32_t page_table[1024] __attribute__((aligned(4096)));
 
 void search(int i, int j);
-void allocate(unsigned long long size);
+uint32_t *allocate(unsigned long long size);
 void free(unsigned long long add);
+void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int flags);
 
 #endif

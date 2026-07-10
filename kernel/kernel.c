@@ -100,13 +100,18 @@ void kernel(){
     print_time_message("start os", start_pos);
 
     //start pagging
+    print_string("Before paging", &i, &j);
+
     build_first_page();
     load_page_directory(page_directory);
     enable_paging();
 
-    int *x = (int *)0x2000;
-    *x = 1234;
-    print_number(*x, &i);
+    print_string("Paging enabled", &i, &j);
+
+    map_page(0x00500000, 0x00400000, 3);
+    print_number(page_directory[1], &i);
+    
+
 
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;

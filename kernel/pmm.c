@@ -25,8 +25,7 @@ void search(int i, int j){
     }
 }
 
-void allocate(unsigned long long size){
-    
+uint32_t *allocate(unsigned long long size){
     int best = -1;
 
     for(int k = 0; k < *entry; k++){
@@ -37,7 +36,7 @@ void allocate(unsigned long long size){
         }
     }
     if( best == -1){
-        return;
+        return 0;
     }
 
     unsigned long long remain = map[best].length - size;
@@ -55,6 +54,7 @@ void allocate(unsigned long long size){
     map[best].length = size;
     map[best].type = 2;
 
+    return (uint32_t *)map[best].base;
 }
 
 void free(unsigned long long add){
@@ -101,4 +101,20 @@ void build_first_page(){
     for (int k = 1; k < 1024; k++){
         page_directory[k] = 0;
     }
+}
+
+void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int flags){
+    uint32_t directory = virtual_address >> 22;
+    uint32_t table = (virtual_address >> 12 ) & 0x3FF;
+    if((!page_directory[directory]) & 1){
+        uint32_t *new_table = allocate(4096);
+        uint32_t *table_ptr = (uint32_t *)new_table;
+        
+        for (int i = 0; i < 1024; i++){
+            table_ptr[i] = 0;
+        }
+        page_directory[directory] = (uint32_t)new_table | 3;
+    }
+    uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
+    table_ptr[table] = physical_address | flags;
 }

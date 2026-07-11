@@ -3,8 +3,16 @@
 #include "vga.h"
 #include "pmm.h"
 
+#define MAX_FREE_PAGES 1024
+
+uint32_t free_virtual[MAX_FREE_PAGES];
+uint32_t free_count = 0;
+
+uint32_t next_virtual = 0xC0000000;
+
 uint16_t *entry = (uint16_t *)0x0500;
 Memory_Map *map = (Memory_Map *)0x504;
+uint32_t next_virtual;
 
 void search(int i, int j){
     print_string("Entries: ", &i, &j);
@@ -116,7 +124,36 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
         }
         page_directory[directory] = (uint32_t)new_table | 3;
     }
-    
+
     uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
     table_ptr[table] = physical_address | flags;
+}
+
+uint32_t *allocate_page(){
+    uint32_t *physical = allocate(4096);
+    if (physical == 0)
+        return 0;
+
+    uint32_t virtual;
+    if(free_count > 0){
+        virtual = free_virtual[free_count - 1];
+    }else{
+        virtual = next_virtual;
+        next_virtual += 4096;
+    }
+    
+    map_page(physical, virtual, 3);
+    return virtual;
+}
+
+void *free_page(uint32_t addr){
+    free_virtual[free_count++] = addr;
+    uint32_t directory = addr >> 22;
+    uint32_t table = (addr >> 12) & 0x3FF;
+
+    uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
+
+    uint32_t physical = table_ptr[table] & 0xFFFFF000;
+    free(physical);
+     table_ptr[table] = 0;
 }

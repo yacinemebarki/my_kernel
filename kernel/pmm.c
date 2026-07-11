@@ -106,7 +106,8 @@ void build_first_page(){
 void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int flags){
     uint32_t directory = virtual_address >> 22;
     uint32_t table = (virtual_address >> 12 ) & 0x3FF;
-    if((!page_directory[directory]) & 1){
+
+    if(!(page_directory[directory]) & 1){
         uint32_t *new_table = allocate(4096);
         uint32_t *table_ptr = (uint32_t *)new_table;
         
@@ -115,6 +116,7 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
         }
         page_directory[directory] = (uint32_t)new_table | 3;
     }
+    
     uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
     table_ptr[table] = physical_address | flags;
 }

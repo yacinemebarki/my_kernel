@@ -9,16 +9,19 @@ uint32_t free_virtual[MAX_FREE_PAGES];
 uint32_t free_count = 0;
 
 uint32_t next_virtual = 0xC0000000;
+extern int i;
+extern int j;
+
+uint32_t page_table[1024] __attribute__((aligned(4096)));
+uint32_t page_directory[1024] __attribute__((aligned(4096)));
 
 uint16_t *entry = (uint16_t *)0x0500;
 Memory_Map *map = (Memory_Map *)0x504;
-uint32_t next_virtual;
 
 void search(int i, int j){
     print_string("Entries: ", &i, &j);
     print_number(*entry, &i);
     i = i + 80;
-
     for(int k = 0; k < *entry; k++){
         unsigned long long start = map[k].base;
         unsigned long long size = map[k].length;
@@ -33,10 +36,13 @@ void search(int i, int j){
     }
 }
 
-uint32_t *allocate(unsigned long long size){
+uint32_t allocate(unsigned long long size){
     int best = -1;
 
     for(int k = 0; k < *entry; k++){
+        if(map[k].base == 0){
+            continue;
+        }
         if(map[k].length >= size && map[k].type == 1){
             if(best == -1 || map[best].length > map[k].length){
                 best = k;
@@ -62,7 +68,7 @@ uint32_t *allocate(unsigned long long size){
     map[best].length = size;
     map[best].type = 2;
 
-    return (uint32_t *)map[best].base;
+    return (uint32_t)map[best].base;
 }
 
 void free(unsigned long long add){
@@ -115,10 +121,19 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
     uint32_t directory = virtual_address >> 22;
     uint32_t table = (virtual_address >> 12 ) & 0x3FF;
 
-    if(!(page_directory[directory]) & 1){
-        uint32_t *new_table = allocate(4096);
+    if ((page_directory[directory] & 1) == 0){
+        uint32_t new_table = allocate(4096);
+        if (new_table == 0) {
+            print_string("allocate FAILED\n", &i, &j);
+            return;
+        }
         uint32_t *table_ptr = (uint32_t *)new_table;
-        
+        print_string("new_table addr = ", &i, &j);
+        print_number((uint32_t)new_table, &i);
+        print_string("\npage_table addr = ", &i, &j);
+        print_number((uint32_t)page_table, &i);
+        print_string("\n", &i, &j);;
+               
         for (int i = 0; i < 1024; i++){
             table_ptr[i] = 0;
         }
@@ -126,17 +141,17 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
     }
 
     uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
-    table_ptr[table] = physical_address | flags;
+    table_ptr[table] = (physical_address & 0xFFFFF000) | flags;
 }
 
-uint32_t *allocate_page(){
-    uint32_t *physical = allocate(4096);
+uint32_t allocate_page(){
+    uint32_t physical = allocate(4096);
     if (physical == 0)
         return 0;
 
     uint32_t virtual;
     if(free_count > 0){
-        virtual = free_virtual[free_count - 1];
+        virtual = free_virtual[--free_count];
     }else{
         virtual = next_virtual;
         next_virtual += 4096;
@@ -146,7 +161,7 @@ uint32_t *allocate_page(){
     return virtual;
 }
 
-void *free_page(uint32_t addr){
+void free_page(uint32_t addr){
     free_virtual[free_count++] = addr;
     uint32_t directory = addr >> 22;
     uint32_t table = (addr >> 12) & 0x3FF;

@@ -95,23 +95,44 @@ void get_seconds(void){
 void kernel(){
     //fix the screen
     clear_screen();
-    print_string("hello world", &i, &j);
+    print_string("hello world\n", &i, &j);
     print_time_message("Up Time", up_pos);
     print_time_message("start os", start_pos);
 
+    /*
+    //test the allocation
+    uint32_t addr = allocate(4096);
+    print_string("address\n", &i, &j);
+    print_number(addr, &i);
+    print_string("\n", &i, &j);
+    search(i, j);
+    */
     //start pagging
-    print_string("Before paging", &i, &j);
+    
+    print_string("Before paging \n", &i, &j);
 
     build_first_page();
+    print_string("PT0=", &i, &j);
+    print_number(page_table[0], &i);
+
+    print_string("\nPD0=", &i, &j);
+    print_number(page_directory[0], &i);
+
+    print_string("\n", &i, &j);
     load_page_directory(page_directory);
     enable_paging();
 
-    print_string("Paging enabled", &i, &j);
-
     map_page(0x00500000, 0x00400000, 3);
-    print_number(page_directory[1], &i);
-    
+    print_string("page_directory[0] = ", &i, &j);
+    print_number(page_directory[0], &i);
 
+    print_string("\npage_table address = ", &i, &j);
+    print_number((uint32_t)page_table, &i);
+
+    print_string("\npage_table[0] = ", &i, &j);
+    print_number(page_table[0] & 0xFFFFF000, &i);
+    print_string("\nflags=", &i, &j);
+    print_number(page_table[0] & 0xFFF, &i);    
 
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;

@@ -17,7 +17,7 @@ extern uint32_t page_table[1024] __attribute__((aligned(4096)));
 void build_first_page();
 void search(int i, int j);
 uint32_t allocate(unsigned long long size);
-void free(unsigned long long add);
+void free(uint32_t physical_address);
 void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int flags);
 void free_page(uint32_t addr);
 uint32_t allocate_page();

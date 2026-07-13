@@ -49,15 +49,19 @@ uint32_t allocate(unsigned long long size){
             }
         }
     }
-    if( best == -1){
+    if (best == -1){
         return 0;
     }
 
     unsigned long long remain = map[best].length - size;
     
     if(remain > 0){
+        if (*entry >= MAX_FREE_PAGES) {
+            return 0;
+        }
+
         for(int k = *entry; k > best; k--){
-            map[k] = map[k -1];
+            map[k] = map[k - 1];
         }
         map[best + 1].base = map[best].base + size;
         map[best + 1].length = remain;
@@ -71,11 +75,11 @@ uint32_t allocate(unsigned long long size){
     return (uint32_t)map[best].base;
 }
 
-void free(unsigned long long add){
+void free(uint32_t physical_address){
     int index = -1;
 
     for (int k = 0; k < *entry; k++){
-        if (map[k].base == add){
+        if (map[k].base == physical_address){
             index = k;
             break;
         }
@@ -86,7 +90,7 @@ void free(unsigned long long add){
 
     map[index].type = 1;
 
-    if (index > 0 &&map[index - 1].type == 1 && map[index - 1].base + map[index - 1].length == map[index].base){
+    if (index > 0 && map[index - 1].type == 1 && map[index - 1].base + map[index - 1].length == map[index].base){
         map[index - 1].length += map[index].length;
 
         for (int k = index; k < *entry - 1; k++){
@@ -96,13 +100,14 @@ void free(unsigned long long add){
         (*entry)--;
         index--;
     }
+
     if (index < *entry - 1 && map[index + 1].type == 1 && map[index].base + map[index].length == map[index + 1].base){
         map[index].length += map[index + 1].length;
 
         for (int k = index + 1; k < *entry - 1; k++){
             map[k] = map[k + 1];
         }
-       (*entry)--;
+        (*entry)--;
     }
 }
 
@@ -128,14 +133,15 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
             return;
         }
         uint32_t *table_ptr = (uint32_t *)new_table;
-        print_string("new_table addr = ", &i, &j);
+        /*
+        print_string("\nnew_table addr = ", &i, &j);
         print_number((uint32_t)new_table, &i);
         print_string("\npage_table addr = ", &i, &j);
         print_number((uint32_t)page_table, &i);
         print_string("\n", &i, &j);;
-               
-        for (int i = 0; i < 1024; i++){
-            table_ptr[i] = 0;
+        */               
+        for (int k = 0; k < 1024; k++){
+            table_ptr[k] = 0;
         }
         page_directory[directory] = (uint32_t)new_table | 3;
     }
@@ -169,6 +175,11 @@ void free_page(uint32_t addr){
     uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
 
     uint32_t physical = table_ptr[table] & 0xFFFFF000;
+
+    //print_string("\nPTE before free = ", &i, &j);
+    //print_number(table_ptr[table], &i);
     free(physical);
-     table_ptr[table] = 0;
+    table_ptr[table] = 0;
+    //print_string("\nPTE after free = ", &i, &j);
+    //print_number(table_ptr[table], &i);  
 }

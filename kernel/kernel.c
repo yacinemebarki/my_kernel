@@ -9,9 +9,9 @@
 
 //define
 #define HZ 100
-#define TIME_POS 240
+#define TIME_POS 160
 #define up_pos 0
-#define start_pos 480
+#define start_pos 240
 
 
 //avoid ide error
@@ -25,7 +25,7 @@ struct idt_pointer ptr;
 struct interrupt_des idt[256];
 
 //screen atribute
-int i = 640;
+int i = 400;
 int space = 80;
 int j = 0;
 
@@ -112,6 +112,7 @@ void kernel(){
     print_string("Before paging \n", &i, &j);
 
     build_first_page();
+    /*
     print_string("PT0=", &i, &j);
     print_number(page_table[0], &i);
 
@@ -119,10 +120,12 @@ void kernel(){
     print_number(page_directory[0], &i);
 
     print_string("\n", &i, &j);
+    */   
     load_page_directory(page_directory);
     enable_paging();
 
     //map_page(0x00500000, 0x00400000, 3);
+    /*
     print_string("page_directory[0] = ", &i, &j);
     print_number(page_directory[0], &i);
 
@@ -132,7 +135,22 @@ void kernel(){
     print_string("\npage_table[0] = ", &i, &j);
     print_number(page_table[0] & 0xFFFFF000, &i);
     print_string("\nflags=", &i, &j);
-    print_number(page_table[0] & 0xFFF, &i);    
+    print_number(page_table[0] & 0xFFF, &i); 
+    */ 
+    //after allocating page
+    uint32_t addr = allocate_page();
+    search(i, j);
+
+    /*
+    print_string("\nthe address =", &i, &j);
+    print_number(addr, &i);
+    print_string("\npage_direcotry[768] = ", &i, &j);
+    print_number(page_directory[768], &i);
+    print_string("\nnumber of entries after allocation", &i, &j);
+    print_number(*entry, &i);
+    */
+    free_page(addr);
+
 
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;

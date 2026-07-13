@@ -122,7 +122,7 @@ void kernel(){
     load_page_directory(page_directory);
     enable_paging();
 
-    map_page(0x00500000, 0x00400000, 3);
+    //map_page(0x00500000, 0x00400000, 3);
     print_string("page_directory[0] = ", &i, &j);
     print_number(page_directory[0], &i);
 

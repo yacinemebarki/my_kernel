@@ -136,20 +136,34 @@ void kernel(){
     print_number(page_table[0] & 0xFFFFF000, &i);
     print_string("\nflags=", &i, &j);
     print_number(page_table[0] & 0xFFF, &i); 
-    */ 
+    
     //after allocating page
     uint32_t addr = allocate_page();
     search(i, j);
 
-    /*
+    
     print_string("\nthe address =", &i, &j);
     print_number(addr, &i);
     print_string("\npage_direcotry[768] = ", &i, &j);
     print_number(page_directory[768], &i);
     print_string("\nnumber of entries after allocation", &i, &j);
     print_number(*entry, &i);
-    */
+    
     free_page(addr);
+    */
+
+    uint32_t a = kmalloc(100);
+    uint32_t b = kmalloc(200);
+    uint32_t c = kmalloc(300);
+
+    print_string("\na = ", &i, &j);
+    print_number(a, &i);
+
+    print_string("\nb = ", &i, &j);
+    print_number(b, &i);
+
+    print_string("\nc = ", &i, &j);
+    print_number(c, &i);
 
 
     //add the interruptions

@@ -5,6 +5,11 @@
 
 #define MAX_FREE_PAGES 1024
 
+//define heap variable
+uint32_t heap_current = 0;
+uint32_t current_page = 0;      
+
+//define free page array
 uint32_t free_virtual[MAX_FREE_PAGES];
 uint32_t free_count = 0;
 
@@ -182,4 +187,18 @@ void free_page(uint32_t addr){
     table_ptr[table] = 0;
     //print_string("\nPTE after free = ", &i, &j);
     //print_number(table_ptr[table], &i);  
+}
+
+uint32_t kmalloc(uint32_t size){
+    if (size > 4096)
+        return 0;
+
+
+    if(heap_current + size > 4096 || current_page == 0){
+        current_page = allocate_page();
+        heap_current = 0;
+    }
+    uint32_t ptr = heap_current + current_page;
+    heap_current += size;
+    return ptr;
 }

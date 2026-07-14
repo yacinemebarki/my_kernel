@@ -21,5 +21,6 @@ void free(uint32_t physical_address);
 void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int flags);
 void free_page(uint32_t addr);
 uint32_t allocate_page();
+uint32_t kmalloc(uint32_t size);
 
 #endif

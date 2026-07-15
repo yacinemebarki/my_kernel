@@ -1,4 +1,5 @@
 #include "asm_operation.h"
+#include "types.h"
 
 void move(unsigned short pos){
     outb(0x3D4, 0x0F);
@@ -75,3 +76,17 @@ void clear_screen(){
     }
 }
 
+void print_hex(uint32_t n, int *i){
+    char hex[] = "0123456789ABCDEF";
+
+    print('0', *i);
+    (*i)++;
+    print('x', *i);
+    (*i)++;
+
+    for (int shift = 28; shift >= 0; shift -= 4){
+        uint32_t digit = (n >> shift) & 0xF;
+        print(hex[digit], *i);
+        (*i)++;
+    }
+}

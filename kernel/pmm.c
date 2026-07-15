@@ -6,20 +6,21 @@
 #define MAX_FREE_PAGES 1024
 
 //define heap variable
+uint32_t page_table[1024] __attribute__((aligned(4096)));
+uint32_t page_directory[1024] __attribute__((aligned(4096)));
+
 Block *heap_head = NULL;
 Block *current_block = NULL;
 
-
-//define free page array
+uint32_t next_virtual = 0xC0000000;
 uint32_t free_virtual[MAX_FREE_PAGES];
 uint32_t free_count = 0;
 
-uint32_t next_virtual = 0xC0000000;
+
+//define free page array
+
 extern int i;
 extern int j;
-
-uint32_t page_table[1024] __attribute__((aligned(4096)));
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
 
 uint16_t *entry = (uint16_t *)0x0500;
 Memory_Map *map = (Memory_Map *)0x504;
@@ -33,7 +34,7 @@ void search(int i, int j){
         unsigned long long size = map[k].length;
         unsigned int type = map[k].type;
         print_string("base: ", &i, &j);
-        print_number(start, &i);
+        print_hex((uint32_t)start, &i);
         print_string("Size: ", &i, &j);
         print_number(size, &i);
         print_string("Type: ", &i, &j);
@@ -194,18 +195,20 @@ uint32_t kmalloc(uint32_t size){
     if (size > 4096 || size == 0)
         return 0;
 
-    if(heap_head == NULL){
-        heap_head = (Block *) allocate_page();
+    if (heap_head == NULL) {
+        heap_head = current_block = (Block *)allocate_page();
         heap_head->size = 4096 - sizeof(Block);
         heap_head->type = 1;
         heap_head->next = NULL;
-        current_block = heap_head;
     }
 
     Block *best_block = NULL;
     Block *current_page = heap_head;
+    print_string("\nheap size = ", &i, &j);
+    print_number(heap_head->size, &i);
     while (current_page != NULL){
         if(current_page->type == 1 && current_page->size >= size){
+
             if(best_block == NULL || best_block->size > current_page->size ){
                 best_block = current_page;
             }
@@ -237,5 +240,30 @@ uint32_t kmalloc(uint32_t size){
 
 }
 void kfree(uint32_t addr){
+    Block *current_page = heap_head;
+    while(current_page != NULL){
+        uint32_t user_addr = (uint32_t)((uint8_t *)current_page + sizeof(Block));
+        if(user_addr == addr){
+            current_page->type = 1;
+            return;
+        }
+        current_page = current_page->next;
+    }
+}
 
+void inspect(){
+    Block *cur = heap_head;
+
+    while (cur != NULL) {
+        print_string("\nBlock: ", &i, &j);
+        print_hex((uint32_t)cur, &i);
+
+        print_string(" size=", &i, &j);
+        print_number(cur->size, &i);
+
+        print_string(" type=", &i, &j);
+        print_number(cur->type, &i);
+
+        cur = cur->next;
+    }
 }

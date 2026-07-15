@@ -55,6 +55,26 @@ make clean
 - `image` — creates `disk.img` and writes boot + kernel into it.
 - `run` — runs `disk.img` in QEMU.
 
+## Kernel tests
+
+The kernel now includes a structured test module under `kernel/tests.c` and `kernel/tests.h`.
+
+- `run_tests()` executes the current test suite.
+- test functions are organized as:
+  - `test_paging()`
+  - `test_allocation()`
+  - `test_kmalloc()`
+  - `test_kfree()`
+
+The kernel also implements more runtime helpers in `kernel/pmm.c`:
+
+- `allocate_page()` / `free_page()` for page allocation and mapping
+- `kmalloc()` / `kfree()` for heap allocations
+- `inspect()` to print heap block metadata
+- `build_first_page()` and `map_page()` for paging setup
+
+These tests and helper functions are centralized in `kernel/tests.c` and can be activated from `kernel/kernel.c` when needed.
+
 ## Project structure
 
 - boot/

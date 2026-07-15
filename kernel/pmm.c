@@ -6,8 +6,9 @@
 #define MAX_FREE_PAGES 1024
 
 //define heap variable
-uint32_t heap_current = 0;
-uint32_t current_page = 0;      
+Block *heap_head = NULL;
+Block *current_block = NULL;
+
 
 //define free page array
 uint32_t free_virtual[MAX_FREE_PAGES];
@@ -190,15 +191,51 @@ void free_page(uint32_t addr){
 }
 
 uint32_t kmalloc(uint32_t size){
-    if (size > 4096)
+    if (size > 4096 || size == 0)
         return 0;
 
-
-    if(heap_current + size > 4096 || current_page == 0){
-        current_page = allocate_page();
-        heap_current = 0;
+    if(heap_head == NULL){
+        heap_head = (Block *) allocate_page();
+        heap_head->size = 4096 - sizeof(Block);
+        heap_head->type = 1;
+        heap_head->next = NULL;
+        current_block = heap_head;
     }
-    uint32_t ptr = heap_current + current_page;
-    heap_current += size;
-    return ptr;
+
+    Block *best_block = NULL;
+    Block *current_page = heap_head;
+    while (current_page != NULL){
+        if(current_page->type == 1 && current_page->size >= size){
+            if(best_block == NULL || best_block->size > current_page->size ){
+                best_block = current_page;
+            }
+        }
+        current_page = current_page->next;
+    }
+    if(best_block == NULL){
+        Block *new_page = (Block *) allocate_page();        
+        new_page->size = 4096 - sizeof(Block);
+        new_page->type = 1;
+        new_page->next = NULL;
+        current_block->next = new_page;
+        best_block = new_page;
+        current_block = new_page;
+    }
+
+    if(best_block->size >= size + sizeof(Block)){
+        Block *new_block = (Block *)((char *)best_block + sizeof(Block) + size);
+        new_block->next = best_block->next;
+        new_block->size = best_block->size - size - sizeof(Block);
+        new_block->type = 1;
+        best_block->size = size;
+        best_block->type = 2;
+        best_block->next = new_block;
+        return (uint32_t)((char *)best_block + sizeof(Block));
+    }
+    best_block->type = 2;   
+    return (uint32_t)((char *)best_block + sizeof(Block));
+
+}
+void kfree(uint32_t addr){
+
 }

@@ -9,8 +9,12 @@ typedef struct{
     unsigned int acpi;
 } __attribute__((packed)) Memory_Map;
 
-extern uint16_t *entry;
-extern Memory_Map *map;
+typedef struct Block{
+    uint32_t size;
+    uint8_t type;
+    struct Block *next;
+}__attribute__((packed)) Block;
+
 extern uint32_t page_directory[1024] __attribute__((aligned(4096)));
 extern uint32_t page_table[1024] __attribute__((aligned(4096)));
 

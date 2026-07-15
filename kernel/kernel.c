@@ -125,6 +125,7 @@ void kernel(){
     enable_paging();
 
     //map_page(0x00500000, 0x00400000, 3);
+    //function test
     /*
     print_string("page_directory[0] = ", &i, &j);
     print_number(page_directory[0], &i);
@@ -150,8 +151,8 @@ void kernel(){
     print_number(*entry, &i);
     
     free_page(addr);
-    */
-
+    */   
+    //testing kmalloc and kfree
     uint32_t a = kmalloc(100);
     uint32_t b = kmalloc(200);
     uint32_t c = kmalloc(300);
@@ -164,7 +165,7 @@ void kernel(){
 
     print_string("\nc = ", &i, &j);
     print_number(c, &i);
-
+    
 
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;

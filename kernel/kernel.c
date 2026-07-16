@@ -51,7 +51,9 @@ static inline void remap_pic(void){
 __attribute__((used, externally_visible))
 void keyboard_handler(void){
     char c = read();
-
+    if(i >= 2000){
+        add_line();
+    }
     if (c == 0)
         return;
 
@@ -69,7 +71,26 @@ void keyboard_handler(void){
         j--;
         clear(i);
         move(i);
-    }else {
+    }else if(c == '2'){
+        i = i + 80;
+        if(i >= 2000){
+            add_line();
+        }
+        move(i);
+    }else if(c == '1'){
+        i = i - 80;
+        move(i);
+    }else if(c == '3'){
+        i--;
+        move(i);
+    }else if(c == '4'){
+        i++;
+        if(i >= 2000){
+            add_line();
+        }
+        move(i);
+    }
+    else {
         print(c, i);
         i++;
         j++;
@@ -97,7 +118,6 @@ void kernel(){
     //fix the screen
     clear_screen();
     print_string("hello world\n", &i, &j);
-    print_time_message("Up Time", up_pos);
     print_time_message("start os", start_pos);
 
     /*
@@ -125,8 +145,7 @@ void kernel(){
     load_page_directory(page_directory);
     enable_paging();
 
-    test_kmalloc();
-    
+    //test_kmalloc();
 
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;
@@ -148,6 +167,7 @@ void kernel(){
         unsigned long sec = ticks / 100;
         if (sec != last){
             last = sec;
+            print_time_message("Up Time", up_pos);
             get_seconds();
         }
         

@@ -51,6 +51,11 @@ char read(){
         case 0x39: return ' ';
         case 0x0E: return '\b';
 
+        case 0x48: return '1';
+        case 0x50: return '2';
+        case 0x4B: return '3';
+        case 0x4D: return '4';
+
         default: return 0;
     }
 }

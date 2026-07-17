@@ -21,4 +21,8 @@ static inline void outb(uint16_t port, uint8_t value){
     __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
 }
 
+static inline void invlpg(uint32_t virtual){
+    asm volatile("invlpg (%0)" : : "r"(virtual) : "memory");
+}
+
 #endif

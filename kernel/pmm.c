@@ -155,6 +155,7 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
 
     uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
     table_ptr[table] = (physical_address & 0xFFFFF000) | flags;
+    invlpg(virtual_address);
 }
 
 uint32_t allocate_page(){
@@ -174,21 +175,46 @@ uint32_t allocate_page(){
     return virtual;
 }
 
+uint32_t *get_pte(uint32_t virtual){
+    uint32_t directory = virtual >> 22;
+    uint32_t table = (virtual >> 12) & 0x3FF;
+
+    if (!(page_directory[directory] & 1))
+        return NULL;
+
+    uint32_t *table_ptr =
+        (uint32_t *)(page_directory[directory] & 0xFFFFF000);
+
+    return &table_ptr[table];
+}
+
+uint32_t get_map(uint32_t virtual){
+    uint32_t *pte = get_pte(virtual);
+
+    if (pte == NULL || !(*pte & 1))
+        return 0;
+
+    return *pte & 0xFFFFF000;
+}
+
 void free_page(uint32_t addr){
     free_virtual[free_count++] = addr;
-    uint32_t directory = addr >> 22;
-    uint32_t table = (addr >> 12) & 0x3FF;
 
-    uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
+    uint32_t *pte = get_pte(addr);
 
-    uint32_t physical = table_ptr[table] & 0xFFFFF000;
+    if (pte == NULL || !(*pte & 1))
+        return;
 
-    //print_string("\nPTE before free = ", &i, &j);
-    //print_number(table_ptr[table], &i);
-    free(physical);
-    table_ptr[table] = 0;
-    //print_string("\nPTE after free = ", &i, &j);
-    //print_number(table_ptr[table], &i);  
+    free(*pte & 0xFFFFF000);
+    *pte = 0;
+}
+
+void unmap_page(uint32_t virtual){
+    uint32_t *pte = get_pte(virtual);
+    if (pte == NULL || !(*pte & 1))
+        return;
+    *pte = 0;
+    invlpg(virtual);
 }
 
 uint32_t kmalloc(uint32_t size){

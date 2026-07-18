@@ -5,7 +5,7 @@
 extern int i;
 extern int j;
 
-void test_paging(void) {
+void test_paging(void){
     print_string("\nTEST: paging\n", &i, &j);
     build_first_page();
     print_string("page_directory[0] = ", &i, &j);
@@ -13,7 +13,7 @@ void test_paging(void) {
     print_string("\n", &i, &j);
 }
 
-void test_allocation(void) {
+void test_allocation(void){
     print_string("\nTEST: alloc\n", &i, &j);
     uint32_t addr = allocate(4096);
     print_string("alloc addr = ", &i, &j);
@@ -21,7 +21,7 @@ void test_allocation(void) {
     print_string("\n", &i, &j);
 }
 
-void test_kmalloc(void) {
+void test_kmalloc(void){
     print_string("\nTEST: kmalloc\n", &i, &j);
     uint32_t a = kmalloc(100);
     uint32_t b = kmalloc(200);
@@ -34,11 +34,11 @@ void test_kmalloc(void) {
     print_string("\nc=", &i, &j);
     print_hex(c, &i);
     print_string("\n", &i, &j);
-    
+
     inspect();
 }
 
-void test_kfree(void) {
+void test_kfree(void){
     print_string("\nTEST: kfree\n", &i, &j);
     uint32_t a = kmalloc(100);
     uint32_t b = kmalloc(200);
@@ -55,9 +55,47 @@ void test_kfree(void) {
     print_string("\n", &i, &j);
 }
 
-void run_tests(void) {
+void test_mapping(void){
+    print_string("\nTEST: mapping\n", &i, &j);
+
+    uint32_t physical = allocate(4096);
+    if (physical == 0){
+        print_string("allocate failed\n", &i, &j);
+        return;
+    }
+
+    uint32_t virtual_address = 0xC0100000;
+    map_page(physical, virtual_address, 3);
+
+    print_string("mapped virtual=", &i, &j);
+    print_hex(virtual_address, &i);
+    print_string(" phys=", &i, &j);
+    print_hex(physical, &i);
+    print_string("\n", &i, &j);
+
+    uint32_t mapped = get_map(virtual_address);
+    print_string("get_map returns ", &i, &j);
+    print_hex(mapped, &i);
+    if (mapped != physical){
+        print_string(" MISMATCH\n", &i, &j);
+    }
+    else{
+        print_string(" OK\n", &i, &j);
+    }
+
+    unmap_page(virtual_address);
+    uint32_t unmapped = get_map(virtual_address);
+    print_string("after unmap get_map=", &i, &j);
+    print_hex(unmapped, &i);
+    print_string("\n", &i, &j);
+
+    free(physical);
+}
+
+void run_tests(void){
     test_paging();
     test_allocation();
     test_kmalloc();
     test_kfree();
+    test_mapping();
 }

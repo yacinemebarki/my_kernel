@@ -10,21 +10,39 @@ process_t *create_process(){
     if (pro == NULL) {
         return NULL;
     }
+    uint32_t kernel_stack = allocate_page();
+
+    if (kernel_stack == 0) {
+        kfree((uint32_t)pro);
+        return NULL;
+    }
+
+    pro->kernel_stack = kernel_stack;
     pro->pid = process_number;
     pro->state = PROCESS_READY;
     pro->next = NULL;
+    pro->esp = kernel_stack + 4096;
+    pro->ebp = pro->esp;
+    pro->eip = 0;
+
     process_number++;
     return pro;
+}
+
+void remove_process(process_t *pro){
+    free_page(pro->kernel_stack);
+    kfree((uint32_t)pro);
+}
+
+void creat_first_process(){
+    process_t *pro = create_process();
+    process_list = pro;
 }
 
 //process list manger
 process_t *process_list = NULL;
 process_t *current_process = NULL;
 
-void creat_first_process(){
-    process_t *pro = create_process();
-    process_list = pro;
-}
 
 void add_process(process_t *pro){
     pro->next = NULL;
@@ -39,7 +57,7 @@ void add_process(process_t *pro){
     current->next = pro;
 }
 
-void remove_process(process_t *pro) {
+void remove_process_list(process_t *pro) {
     process_t *current = process_list;
     process_t *previous = NULL;
 
@@ -50,8 +68,7 @@ void remove_process(process_t *pro) {
             } else {
                 previous->next = current->next;
             }
-
-            kfree((uint32_t)current);
+            remove_process(current);            
             return;
         }
 

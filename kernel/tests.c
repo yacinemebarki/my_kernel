@@ -127,11 +127,17 @@ void test_process_list(void){
 
     creat_first_process();
     process_t *first = process_list;
-    print_string("first pid=", &i, &j);
+    if(first == NULL){
+        print_string("\n faild", &i, &j);
+    }
+    print_string("\nfirst pid=", &i, &j);
     print_number(first->pid, &i);
     print_string("\n", &i, &j);
 
     process_t *second = create_process();
+    if(second == NULL){
+        print_string("\n faild", &i, &j);
+    }
     add_process(second);
     print_string("second pid=", &i, &j);
     print_number(second->pid, &i);
@@ -144,7 +150,7 @@ void test_process_list(void){
         print_string("find_process FAIL\n", &i, &j);
     }
 
-    remove_process(second);
+    remove_process_list(second);
     print_string("removed second\n", &i, &j);
 
     if (find_process(second) == NULL) {

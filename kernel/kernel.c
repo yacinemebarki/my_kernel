@@ -7,6 +7,7 @@
 #include "asm_operation.h"
 #include "pmm.h"
 #include "tests.h"
+#include "process.h"
 
 //define
 #define HZ 100
@@ -144,6 +145,7 @@ void kernel(){
     */   
     load_page_directory(page_directory);
     enable_paging();
+    test_process_list();
 
     //tests
     //test_paging();

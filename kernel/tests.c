@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "vga.h"
 #include "pmm.h"
+#include "process.h"
 
 extern int i;
 extern int j;
@@ -118,11 +119,48 @@ void test_mapping(void){
     free(physical);
 }
 
+void test_process_list(void){
+    print_string("\nTEST: process list\n", &i, &j);
+
+    process_list = NULL;
+    process_number = 1;
+
+    creat_first_process();
+    process_t *first = process_list;
+    print_string("first pid=", &i, &j);
+    print_number(first->pid, &i);
+    print_string("\n", &i, &j);
+
+    process_t *second = create_process();
+    add_process(second);
+    print_string("second pid=", &i, &j);
+    print_number(second->pid, &i);
+    print_string("\n", &i, &j);
+
+    process_t *found = find_process(second);
+    if (found == second) {
+        print_string("find_process OK\n", &i, &j);
+    } else {
+        print_string("find_process FAIL\n", &i, &j);
+    }
+
+    remove_process(second);
+    print_string("removed second\n", &i, &j);
+
+    if (find_process(second) == NULL) {
+        print_string("remove confirmed\n", &i, &j);
+    } else {
+        print_string("remove failed\n", &i, &j);
+    }
+    print_string("\n", &i, &j);
+}
+
 void run_tests(void){
     test_paging();
     test_allocation();
     test_kmalloc();
     test_kfree();
     test_page_alloc_free();
+    test_process_list();
     test_mapping();
 }

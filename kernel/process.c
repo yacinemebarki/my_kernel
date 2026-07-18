@@ -2,27 +2,41 @@
 #include "process.h"
 #include "pmm.h"
 
-//process list manger
-process_t *process_list = NULL;
+//process creating
 
-void creat_first_process(){
+uint16_t process_number = 1;
+process_t *create_process(){
     process_t *pro = (process_t *)kmalloc(sizeof(process_t));
-    pro->pid = 1;
+    if (pro == NULL) {
+        return NULL;
+    }
+    pro->pid = process_number;
     pro->state = PROCESS_READY;
     pro->next = NULL;
+    process_number++;
+    return pro;
+}
+
+//process list manger
+process_t *process_list = NULL;
+process_t *current_process = NULL;
+
+void creat_first_process(){
+    process_t *pro = create_process();
     process_list = pro;
 }
 
 void add_process(process_t *pro){
     pro->next = NULL;
-    process_t *current_process = process_list;
-    if(current_process->next == NULL){
+    process_t *current = process_list;
+    if (current == NULL) {
+        process_list = pro;
         return;
     }
-    while (current_process != NULL){
-        current_process = current_process->next;
+    while (current->next != NULL) {
+        current = current->next;
     }
-    current_process->next = pro;   
+    current->next = pro;
 }
 
 void remove_process(process_t *pro) {
@@ -37,7 +51,7 @@ void remove_process(process_t *pro) {
                 previous->next = current->next;
             }
 
-            kfree(current);
+            kfree((uint32_t)current);
             return;
         }
 
@@ -47,12 +61,13 @@ void remove_process(process_t *pro) {
 }
 
 process_t *find_process(process_t *pro){
-    process_t *current_process = process_list;
+    process_t *current = process_list;
 
-    while(current_process != NULL){
-        if(current_process == pro){
+    while(current != NULL){
+        if(current == pro){
             return pro;
         }
+        current = current->next;
     }
     return NULL;
 }

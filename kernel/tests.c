@@ -55,6 +55,32 @@ void test_kfree(void){
     print_string("\n", &i, &j);
 }
 
+void test_page_alloc_free(void){
+    print_string("\nTEST: page alloc/free\n", &i, &j);
+
+    uint32_t vaddr = allocate_page();
+    print_string("allocated virtual=", &i, &j);
+    print_hex(vaddr, &i);
+    print_string("\n", &i, &j);
+
+    uint32_t phys = get_map(vaddr);
+    print_string("mapped phys=", &i, &j);
+    print_hex(phys, &i);
+    print_string("\n", &i, &j);
+
+    free_page(vaddr);
+    uint32_t unmapped = get_map(vaddr);
+    print_string("\nafter free get_map=", &i, &j);
+    print_hex(unmapped, &i);
+    print_string("\n", &i, &j);
+
+    if (unmapped == 0){
+        print_string("OK\n", &i, &j);
+    } else {
+        print_string("FAIL\n", &i, &j);
+    }
+}
+
 void test_mapping(void){
     print_string("\nTEST: mapping\n", &i, &j);
 
@@ -97,5 +123,6 @@ void run_tests(void){
     test_allocation();
     test_kmalloc();
     test_kfree();
+    test_page_alloc_free();
     test_mapping();
 }

@@ -199,6 +199,10 @@ uint32_t get_map(uint32_t virtual){
 
 void free_page(uint32_t addr){
     free_virtual[free_count++] = addr;
+    /*
+    print_string("thee number of free page= ", &i, &j);
+    print_number(free_count, &i);
+    */
 
     uint32_t *pte = get_pte(addr);
 

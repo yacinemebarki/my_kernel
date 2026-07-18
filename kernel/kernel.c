@@ -145,8 +145,10 @@ void kernel(){
     load_page_directory(page_directory);
     enable_paging();
 
+    //tests
     //test_paging();
     //test_mapping();
+    //test_page_alloc_free();
     //test_kmalloc();
 
     //add the interruptions

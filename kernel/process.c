@@ -2,6 +2,9 @@
 #include "process.h"
 #include "pmm.h"
 
+extern void restore_esp(process_t *next);
+
+
 //process creating
 
 uint16_t process_number = 1;
@@ -17,13 +20,21 @@ process_t *create_process(){
         return NULL;
     }
 
+    pro->regs = (registers_t *)kmalloc(sizeof(registers_t));
+
+    if (pro->regs == NULL) {
+        free_page(kernel_stack);
+        kfree((uint32_t)pro);
+        return NULL;
+    }
+
     pro->kernel_stack = kernel_stack;
     pro->pid = process_number;
     pro->state = PROCESS_READY;
     pro->next = NULL;
-    pro->esp = kernel_stack + 4096;
-    pro->ebp = pro->esp;
-    pro->eip = 0;
+    pro->regs->esp = kernel_stack + 4096;
+    pro->regs->ebp = pro->regs->esp;
+    pro->regs->eip = 0;
 
     process_number++;
     return pro;
@@ -87,4 +98,20 @@ process_t *find_process(process_t *pro){
         current = current->next;
     }
     return NULL;
+}
+
+void save_context(registers_t *regs){
+    current_process->regs->esp = regs->esp;
+    current_process->regs->ebp = regs->ebp;
+    current_process->regs->eip = regs->eip;
+}
+
+void context_switch(registers_t *reg, process_t *next){
+    save_context(reg);
+    current_process = next;  
+    restore_esp(next);
+}
+
+void context_switching(){
+
 }

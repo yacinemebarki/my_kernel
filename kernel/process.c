@@ -3,17 +3,19 @@
 #include "pmm.h"
 #include "vga.h"
 
-extern void restore_esp(process_t *next);
-
-
 //process creating
 
 extern int i;
 extern int j;
 
+//process list manger
+process_t *process_list = NULL;
+process_t *current_process = NULL;
+
 void process_entry(){
+    int count = 0;
     while (1){
-        print_string("Hello from process!\n", &i, &j);
+        print_string("starint process", &i, &j);
     }
 }
 
@@ -61,11 +63,9 @@ void remove_process(process_t *pro){
 void creat_first_process(){
     process_t *pro = create_process();
     process_list = pro;
+    current_process = pro;
 }
 
-//process list manger
-process_t *process_list = NULL;
-process_t *current_process = NULL;
 
 
 void add_process(process_t *pro){
@@ -121,4 +121,25 @@ void context_switch(registers_t *reg, process_t *next){
     save_context(reg);
     current_process = next;  
     restore_esp(next);
+}
+
+process_t *schedule(){
+    process_t *next = current_process->next;
+
+    while(next != NULL){
+        if(next->state == PROCESS_READY){
+            return next;
+        }
+        next = next->next;
+    }
+
+    next = process_list;
+
+    while(next != current_process){
+        if(next->state == PROCESS_READY){
+            return next;
+        }
+        next = next->next;
+    }
+    return next;
 }

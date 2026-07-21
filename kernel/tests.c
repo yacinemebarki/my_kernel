@@ -185,6 +185,17 @@ void test_save_context(void){
     print_string("\n", &i, &j);
 }
 
+void test_first_process(void){
+    print_string("\nTEST: First Process\n", &i, &j);
+
+    creat_first_process();
+
+    print_string("Starting process...\n", &i, &j);
+
+    restore_esp(current_process);
+   
+}
+
 void run_tests(void){
     test_paging();
     test_allocation();

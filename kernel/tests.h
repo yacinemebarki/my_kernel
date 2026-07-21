@@ -10,5 +10,6 @@ void test_process_list(void);
 void test_mapping(void);
 void run_tests(void);
 void test_save_context(void);
+void test_first_process(void);
 
 #endif

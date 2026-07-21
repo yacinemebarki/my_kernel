@@ -45,6 +45,10 @@ void remove_process(process_t *pro);
 void remove_process_list(process_t *pro);
 process_t *find_process(process_t *pro);
 void save_context(registers_t *regs);
+void context_switch(registers_t *regs, process_t *next);
+process_t *schedule();
+extern void restore_esp(process_t *next);
+
 
 
 #endif

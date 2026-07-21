@@ -21,6 +21,9 @@ extern void keyboard_isr();
 extern void irq0();
 extern void load_page_directory(uint32_t *directory);
 extern void enable_paging(void);
+extern void isr8();
+extern void isr13();
+extern void isr14();
 
 //idt attribute table and pointer
 struct idt_pointer ptr;
@@ -103,9 +106,24 @@ void keyboard_handler(void){
 
 volatile unsigned long ticks = 0;
 
-void irq0_handler(){ 
+void irq0_handler(registers_t *regs){ 
     ticks++;  
-    outb(0x20, 0x20);
+    outb(0x20, 0x20);                
+
+    if(current_process == NULL || process_list == NULL){
+        return;                        
+    }
+
+    process_t *next = schedule();
+    if(next != current_process){
+        context_switch(regs, next);
+    }
+}
+
+void fault_handler(uint32_t vector){
+    print_string("FAULT: vector ", &i, &j);
+    print_hex(vector, &i);
+    __asm__ volatile("cli; hlt");
 }
 
 void get_seconds(void){
@@ -161,6 +179,9 @@ void kernel(){
     outb(0x21, 0xFC);
     add(33, (uint32_t)keyboard_isr, idt);
     add(32, (uint32_t)irq0, idt);
+    add(8,  (uint32_t)isr8,  idt);
+    add(13, (uint32_t)isr13, idt);
+    add(14, (uint32_t)isr14, idt);
     load_idt(&ptr);
     __asm__ volatile("sti");
 
@@ -168,7 +189,7 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
     unsigned long test = 0;
-
+    test_first_process();
     while (1){
         //time track
         unsigned long sec = ticks / 100;

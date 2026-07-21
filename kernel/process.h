@@ -44,5 +44,7 @@ void add_process(process_t *pro);
 void remove_process(process_t *pro);
 void remove_process_list(process_t *pro);
 process_t *find_process(process_t *pro);
+void save_context(registers_t *regs);
+
 
 #endif

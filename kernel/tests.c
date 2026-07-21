@@ -161,6 +161,30 @@ void test_process_list(void){
     print_string("\n", &i, &j);
 }
 
+void test_save_context(void){
+    print_string("\nTEST: Save Context\n", &i, &j);
+
+    process_t *p = create_process();
+
+    current_process = p;
+
+    registers_t regs;
+
+    regs.eip = 0x12345678;
+    regs.esp = 0xAAAABBBB;
+    regs.ebp = 0xCCCCDDDD;
+
+    save_context(&regs);
+
+    print_string("Saved regs pointer = ", &i, &j);
+    print_hex((uint32_t)current_process->regs, &i);
+
+    print_string("\nExpected pointer = ", &i, &j);
+    print_hex((uint32_t)&regs, &i);
+
+    print_string("\n", &i, &j);
+}
+
 void run_tests(void){
     test_paging();
     test_allocation();

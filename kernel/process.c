@@ -1,11 +1,21 @@
 #include "types.h" 
 #include "process.h"
 #include "pmm.h"
+#include "vga.h"
 
 extern void restore_esp(process_t *next);
 
 
 //process creating
+
+extern int i;
+extern int j;
+
+void process_entry(){
+    while (1){
+        print_string("Hello from process!\n", &i, &j);
+    }
+}
 
 uint16_t process_number = 1;
 process_t *create_process(){
@@ -20,22 +30,25 @@ process_t *create_process(){
         return NULL;
     }
 
-    pro->regs = (registers_t *)kmalloc(sizeof(registers_t));
-
-    if (pro->regs == NULL) {
-        free_page(kernel_stack);
-        kfree((uint32_t)pro);
-        return NULL;
-    }
+    uint32_t *stack = (uint32_t *)(kernel_stack + 4096);
+    stack -= sizeof(registers_t) / sizeof(uint32_t);
+    pro->regs = (registers_t *)stack;
 
     pro->kernel_stack = kernel_stack;
     pro->pid = process_number;
     pro->state = PROCESS_READY;
     pro->next = NULL;
-    pro->regs->esp = kernel_stack + 4096;
-    pro->regs->ebp = pro->regs->esp;
     pro->regs->eip = 0;
-
+    pro->regs->edi = 0;
+    pro->regs->esi = 0;
+    pro->regs->ebp = 0;
+    pro->regs->ebx = 0;
+    pro->regs->edx = 0;
+    pro->regs->ecx = 0;
+    pro->regs->eax = 0;
+    pro->regs->eip = (uint32_t)process_entry;
+    pro->regs->cs = 0x08;
+    pro->regs->eflags = 0x202;
     process_number++;
     return pro;
 }
@@ -101,17 +114,11 @@ process_t *find_process(process_t *pro){
 }
 
 void save_context(registers_t *regs){
-    current_process->regs->esp = regs->esp;
-    current_process->regs->ebp = regs->ebp;
-    current_process->regs->eip = regs->eip;
+    current_process->regs = regs;
 }
 
 void context_switch(registers_t *reg, process_t *next){
     save_context(reg);
     current_process = next;  
     restore_esp(next);
-}
-
-void context_switching(){
-
 }

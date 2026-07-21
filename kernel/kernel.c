@@ -145,8 +145,9 @@ void kernel(){
     */   
     load_page_directory(page_directory);
     enable_paging();
-    test_process_list();
 
+    test_save_context();
+    //test_process_list();
     //tests
     //test_paging();
     //test_mapping();

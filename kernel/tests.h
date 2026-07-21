@@ -11,5 +11,6 @@ void test_mapping(void);
 void run_tests(void);
 void test_save_context(void);
 void test_first_process(void);
+void test_scheduler(void);
 
 #endif

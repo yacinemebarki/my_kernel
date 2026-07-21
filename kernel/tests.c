@@ -196,6 +196,41 @@ void test_first_process(void){
    
 }
 
+void test_scheduler(void){
+    print_string("\nTEST: Scheduler\n", &i, &j);
+
+    process_list = NULL;
+    current_process = NULL;
+
+    process_t *p1 = create_process();
+    process_t *p2 = create_process();
+    process_t *p3 = create_process();
+
+    process_list = p1;
+    p1->next = p2;
+    p2->next = p3;
+    p3->next = NULL;
+
+    p1->state = PROCESS_RUNNING;
+    p2->state = PROCESS_READY;
+    p3->state = PROCESS_READY;
+
+    current_process = p1;
+
+    process_t *next = schedule();
+
+    print_string("Current PID = ", &i, &j);
+    print_number(current_process->pid, &i);
+
+    print_string("\nNext PID = ", &i, &j);
+    print_number(next->pid, &i);
+
+    print_string("\nExpected = ", &i, &j);
+    print_number(p2->pid, &i);
+
+    print_string("\n", &i, &j);
+}
+
 void run_tests(void){
     test_paging();
     test_allocation();

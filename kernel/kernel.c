@@ -164,7 +164,8 @@ void kernel(){
     load_page_directory(page_directory);
     enable_paging();
 
-    test_save_context();
+    test_scheduler();
+    //test_save_context();
     //test_process_list();
     //tests
     //test_paging();
@@ -189,7 +190,6 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
     unsigned long test = 0;
-    test_first_process();
     while (1){
         //time track
         unsigned long sec = ticks / 100;

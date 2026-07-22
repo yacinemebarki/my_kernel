@@ -229,6 +229,11 @@ void test_scheduler(void){
     print_number(p2->pid, &i);
 
     print_string("\n", &i, &j);
+    remove_process_list(p1);
+    remove_process_list(p2);
+    remove_process_list(p3);
+    current_process = NULL;
+    process_list = NULL;
 }
 
 void run_tests(void){

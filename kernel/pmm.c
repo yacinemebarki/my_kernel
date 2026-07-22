@@ -234,8 +234,6 @@ uint32_t kmalloc(uint32_t size){
 
     Block *best_block = NULL;
     Block *current_page = heap_head;
-    print_string("\nheap size = ", &i, &j);
-    print_number(heap_head->size, &i);
     while (current_page != NULL){
         if(current_page->type == 1 && current_page->size >= size){
 

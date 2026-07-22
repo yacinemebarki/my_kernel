@@ -138,63 +138,40 @@ void sleep_process(int time){
     current_process->wake = ticks + time; 
 }
 
+void sleep(int time){
+    int start = ticks;
+    while(ticks < time + start);
+}
+
+void uptime_task(void){
+    unsigned long last = (unsigned long)-1;
+    while (1){
+        unsigned long sec = ticks / 100;
+        if (sec != last){
+            last = sec;
+            print_time_message("Up Time", up_pos);
+            get_seconds();
+        }
+    }
+}
+
 //test kernel function
 
 void test_sleep(void){
-    print_string("\nTEST: Sleep\n", &i, &j);
-
-    process_list = NULL;
-    current_process = NULL;
-    process_number = 1;
-
-    process_t *p = create_process(process_entry);
-
-    process_list = p;
-    current_process = p;
-    p->state = PROCESS_RUNNING;
+    print_string("sleepy: about to sleep\n", &i, &j);
 
     unsigned long start = ticks;
-
-    print_string("Before sleep\n", &i, &j);
-    print_string("State = ", &i, &j);
-    print_number(p->state, &i);
-    print_string("\n", &i, &j);
-
-    sleep_process(100);
-
-    print_string("After sleep()\n", &i, &j);
-    print_string("State = ", &i, &j);
-    print_number(p->state, &i);
-    print_string("\nWake tick = ", &i, &j);
-    print_number(p->wake, &i);
-
-    print_string("\nCurrent tick = ", &i, &j);
-    print_number(ticks, &i);
-    print_string("\n", &i, &j);
-
-    while (ticks < start + 100){
-        /* Wait for timer interrupts */
+    sleep_process(2000);           
+    while (current_process->state != PROCESS_READY) {
+        __asm__ volatile("hlt");
     }
 
-    wake_processes();
-
-    print_string("After wake_processes()\n", &i, &j);
-    print_string("State = ", &i, &j);
-    print_number(p->state, &i);
-
-    if (p->state == PROCESS_READY){
-        print_string("\nSleep test PASSED\n", &i, &j);
-    }
-    else{
-        print_string("\nSleep test FAILED\n", &i, &j);
-    }
-
+    print_string("sleepy: woke up! ticks elapsed = ", &i, &j);
+    print_number(ticks - start, &i);
     print_string("\n", &i, &j);
 
-    remove_process_list(p);
-    current_process = NULL;
-    process_list = NULL;
 }
+
 
 
 void kernel(){
@@ -202,40 +179,13 @@ void kernel(){
     clear_screen();
     print_string("hello world\n", &i, &j);
     print_time_message("start os", start_pos);
-
-    /*
-    //test the allocation
-    uint32_t addr = allocate(4096);
-    print_string("address\n", &i, &j);
-    print_number(addr, &i);
-    print_string("\n", &i, &j);
-    search(i, j);
-    */
-    //start pagging
     
     print_string("Before paging \n", &i, &j);
 
     build_first_page();
-    /*
-    print_string("PT0=", &i, &j);
-    print_number(page_table[0], &i);
-
-    print_string("\nPD0=", &i, &j);
-    print_hex(page_directory[0], &i);
-
     print_string("\n", &i, &j);
-    */   
     load_page_directory(page_directory);
     enable_paging();
-
-    //test_scheduler();
-    //test_save_context();
-    //test_process_list();
-    //tests
-    //test_paging();
-    //test_mapping();
-    //test_page_alloc_free();
-    //test_kmalloc();
 
     //add the interruptions
     ptr.limit = sizeof(idt) - 1;
@@ -254,15 +204,11 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
     unsigned long test = 0;
-    test_sleep();
-    while (1){
-        //time track
-        unsigned long sec = ticks / 100;
-        if (sec != last){
-            last = sec;
-            print_time_message("Up Time", up_pos);
-            get_seconds();
-        }
-        
-    }
+    process_t *p1 = create_process(uptime_task);
+    process_t *p2 = create_process(test_sleep);
+    process_list = p1;
+    p1->next = p2;
+    current_process = p1;
+
+    restore_esp(p1);   
 }

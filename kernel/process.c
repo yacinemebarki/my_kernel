@@ -13,7 +13,7 @@ extern int ticks;
 process_t *process_list = NULL;
 process_t *current_process = NULL;
 
-void process_entry(){
+void process_test(){
     int count = 0;
     while (1){
         print_string("starint process", &i, &j);
@@ -51,6 +51,7 @@ process_t *create_process(void (*entry) (void)){
     pro->regs->ecx = 0;
     pro->regs->eax = 0;
     pro->regs->eip = (uint32_t) entry;
+    pro->entry = entry;
     pro->regs->cs = 0x08;
     pro->regs->eflags = 0x202;
     process_number++;
@@ -116,7 +117,8 @@ process_t *find_process(process_t *pro){
 }
 
 void save_context(registers_t *regs){
-    current_process->regs = regs;
+    if(current_process != NULL)
+        current_process->regs = regs;
 }
 
 void context_switch(registers_t *reg, process_t *next){
@@ -155,4 +157,20 @@ void wake_processes(void){
         }
         p = p->next;
     }
+}
+
+void exit_process(){
+    current_process->state = PROCESS_TERMINATED;
+    remove_process_list(current_process);
+
+    process_t *dead = current_process;
+    process_t *next = schedule();
+    current_process = next;
+    restore_esp(next);
+
+}
+
+void process_entry(){
+    current_process->entry();   
+    exit_process();             
 }

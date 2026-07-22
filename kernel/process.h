@@ -49,6 +49,7 @@ void save_context(registers_t *regs);
 void context_switch(registers_t *regs, process_t *next);
 process_t *schedule();
 extern void restore_esp(process_t *next);
+void process_entry();
 void wake_processes(void);
 
 

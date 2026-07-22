@@ -133,9 +133,67 @@ void get_seconds(void){
     print_number(second, &pos);
 }
 
-void sleep(int time){
+void sleep_process(int time){
     current_process->state = PROCESS_BLOCKED;
     current_process->wake = ticks + time; 
+}
+
+//test kernel function
+
+void test_sleep(void){
+    print_string("\nTEST: Sleep\n", &i, &j);
+
+    process_list = NULL;
+    current_process = NULL;
+    process_number = 1;
+
+    process_t *p = create_process(process_entry);
+
+    process_list = p;
+    current_process = p;
+    p->state = PROCESS_RUNNING;
+
+    unsigned long start = ticks;
+
+    print_string("Before sleep\n", &i, &j);
+    print_string("State = ", &i, &j);
+    print_number(p->state, &i);
+    print_string("\n", &i, &j);
+
+    sleep_process(100);
+
+    print_string("After sleep()\n", &i, &j);
+    print_string("State = ", &i, &j);
+    print_number(p->state, &i);
+    print_string("\nWake tick = ", &i, &j);
+    print_number(p->wake, &i);
+
+    print_string("\nCurrent tick = ", &i, &j);
+    print_number(ticks, &i);
+    print_string("\n", &i, &j);
+
+    while (ticks < start + 100){
+        /* Wait for timer interrupts */
+    }
+
+    wake_processes();
+
+    print_string("After wake_processes()\n", &i, &j);
+    print_string("State = ", &i, &j);
+    print_number(p->state, &i);
+
+    if (p->state == PROCESS_READY){
+        print_string("\nSleep test PASSED\n", &i, &j);
+    }
+    else{
+        print_string("\nSleep test FAILED\n", &i, &j);
+    }
+
+    print_string("\n", &i, &j);
+
+    remove_process_list(p);
+    current_process = NULL;
+    process_list = NULL;
 }
 
 
@@ -170,7 +228,7 @@ void kernel(){
     load_page_directory(page_directory);
     enable_paging();
 
-    test_scheduler();
+    //test_scheduler();
     //test_save_context();
     //test_process_list();
     //tests
@@ -196,6 +254,7 @@ void kernel(){
     pit_init(11931);
     unsigned long last = 0;
     unsigned long test = 0;
+    test_sleep();
     while (1){
         //time track
         unsigned long sec = ticks / 100;

@@ -65,7 +65,7 @@ kernel:
 	nasm -f elf32 $(PMM_ISR) -o $(PMM_ISR_O)
 	nasm -f elf32 $(EXCEPTION_ISR) -o $(EXCEPTION_ISR_O)
 	nasm -f elf32 $(RESTORE_ESP_ISR) -o $(RESTORE_ESP_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) 
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

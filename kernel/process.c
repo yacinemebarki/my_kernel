@@ -7,6 +7,7 @@
 
 extern int i;
 extern int j;
+extern int ticks;
 
 //process list manger
 process_t *process_list = NULL;
@@ -20,7 +21,7 @@ void process_entry(){
 }
 
 uint16_t process_number = 1;
-process_t *create_process(){
+process_t *create_process(void (*entry) (void)){
     process_t *pro = (process_t *)kmalloc(sizeof(process_t));
     if (pro == NULL) {
         return NULL;
@@ -39,6 +40,7 @@ process_t *create_process(){
     pro->kernel_stack = kernel_stack;
     pro->pid = process_number;
     pro->state = PROCESS_READY;
+    pro->wake = 0;
     pro->next = NULL;
     pro->regs->eip = 0;
     pro->regs->edi = 0;
@@ -48,7 +50,7 @@ process_t *create_process(){
     pro->regs->edx = 0;
     pro->regs->ecx = 0;
     pro->regs->eax = 0;
-    pro->regs->eip = (uint32_t)process_entry;
+    pro->regs->eip = (uint32_t) entry;
     pro->regs->cs = 0x08;
     pro->regs->eflags = 0x202;
     process_number++;
@@ -60,8 +62,8 @@ void remove_process(process_t *pro){
     kfree((uint32_t)pro);
 }
 
-void creat_first_process(){
-    process_t *pro = create_process();
+void creat_first_process(void (*entry) (void)){
+    process_t *pro = create_process(entry);
     process_list = pro;
     current_process = pro;
 }
@@ -127,7 +129,7 @@ process_t *schedule(){
     process_t *next = current_process->next;
 
     while(next != NULL){
-        if(next->state == PROCESS_READY){
+        if(next->state == PROCESS_READY ){
             return next;
         }
         next = next->next;
@@ -138,8 +140,19 @@ process_t *schedule(){
     while(next != current_process){
         if(next->state == PROCESS_READY){
             return next;
-        }
+        }        
         next = next->next;
     }
     return next;
+}
+
+void wake_processes(void){
+    process_t *p = process_list;
+
+    while (p != NULL) {
+        if (p->state == PROCESS_BLOCKED &&ticks >= p->wake){
+            p->state = PROCESS_READY;
+        }
+        p = p->next;
+    }
 }

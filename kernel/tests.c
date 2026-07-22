@@ -119,53 +119,71 @@ void test_mapping(void){
     free(physical);
 }
 
+void task1(void){
+    while (1) {
+        print_string("A", &i, &j);
+    }
+}
+
+void task2(void){
+    while (1) {
+        print_string("B", &i, &j);
+    }
+}
+
+void task3(void){
+    while (1) {
+        print_string("C", &i, &j);
+    }
+}
+
 void test_process_list(void){
     print_string("\nTEST: process list\n", &i, &j);
 
     process_list = NULL;
     process_number = 1;
 
-    creat_first_process();
+    creat_first_process(task1);
+
     process_t *first = process_list;
-    if(first == NULL){
-        print_string("\n faild", &i, &j);
+    if (first == NULL) {
+        print_string("failed\n", &i, &j);
+        return;
     }
-    print_string("\nfirst pid=", &i, &j);
+
+    print_string("first pid=", &i, &j);
     print_number(first->pid, &i);
     print_string("\n", &i, &j);
 
-    process_t *second = create_process();
-    if(second == NULL){
-        print_string("\n faild", &i, &j);
-    }
+    process_t *second = create_process(task2);
     add_process(second);
+
     print_string("second pid=", &i, &j);
     print_number(second->pid, &i);
     print_string("\n", &i, &j);
 
-    process_t *found = find_process(second);
-    if (found == second) {
+    if (find_process(second) == second)
         print_string("find_process OK\n", &i, &j);
-    } else {
+    else
         print_string("find_process FAIL\n", &i, &j);
-    }
 
     remove_process_list(second);
-    print_string("removed second\n", &i, &j);
 
-    if (find_process(second) == NULL) {
+    if (find_process(second) == NULL)
         print_string("remove confirmed\n", &i, &j);
-    } else {
+    else
         print_string("remove failed\n", &i, &j);
-    }
-    print_string("\n", &i, &j);
+
+    remove_process_list(first);
+
+    current_process = NULL;
+    process_list = NULL;
 }
 
 void test_save_context(void){
     print_string("\nTEST: Save Context\n", &i, &j);
 
-    process_t *p = create_process();
-
+    process_t *p = create_process(task1);
     current_process = p;
 
     registers_t regs;
@@ -183,17 +201,19 @@ void test_save_context(void){
     print_hex((uint32_t)&regs, &i);
 
     print_string("\n", &i, &j);
+
+    remove_process_list(p);
+    current_process = NULL;
 }
 
 void test_first_process(void){
     print_string("\nTEST: First Process\n", &i, &j);
 
-    creat_first_process();
+    creat_first_process(task1);
 
     print_string("Starting process...\n", &i, &j);
 
     restore_esp(current_process);
-   
 }
 
 void test_scheduler(void){
@@ -202,9 +222,9 @@ void test_scheduler(void){
     process_list = NULL;
     current_process = NULL;
 
-    process_t *p1 = create_process();
-    process_t *p2 = create_process();
-    process_t *p3 = create_process();
+    process_t *p1 = create_process(task1);
+    process_t *p2 = create_process(task2);
+    process_t *p3 = create_process(task3);
 
     process_list = p1;
     p1->next = p2;
@@ -229,9 +249,11 @@ void test_scheduler(void){
     print_number(p2->pid, &i);
 
     print_string("\n", &i, &j);
+
     remove_process_list(p1);
     remove_process_list(p2);
     remove_process_list(p3);
+
     current_process = NULL;
     process_list = NULL;
 }

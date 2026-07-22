@@ -114,6 +114,7 @@ void irq0_handler(registers_t *regs){
         return;                        
     }
 
+    wake_processes();
     process_t *next = schedule();
     if(next != current_process){
         context_switch(regs, next);
@@ -130,6 +131,11 @@ void get_seconds(void){
     unsigned long second = ticks / HZ;
     int pos = TIME_POS;
     print_number(second, &pos);
+}
+
+void sleep(int time){
+    current_process->state = PROCESS_BLOCKED;
+    current_process->wake = ticks + time; 
 }
 
 

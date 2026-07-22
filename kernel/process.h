@@ -31,6 +31,7 @@ typedef struct process{
     uint32_t kernel_stack_to;
     registers_t *regs;
     process_state_t state; 
+    int wake;
     struct process *next;   
 } process_t;
 
@@ -48,6 +49,7 @@ void save_context(registers_t *regs);
 void context_switch(registers_t *regs, process_t *next);
 process_t *schedule();
 extern void restore_esp(process_t *next);
+void wake_processes(void);
 
 
 

@@ -17,8 +17,15 @@ isr8:
     push dword 8
     jmp isr_common
 
+global isr0
+isr0:
+    push dword 0    
+    push dword 0    
+    jmp isr_common    
+
 isr_common:
     pusha
+    push dword [esp + 32]
     call fault_handler
 
     add esp, 4

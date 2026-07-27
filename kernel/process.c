@@ -50,7 +50,7 @@ process_t *create_process(void (*entry) (void)){
     pro->regs->edx = 0;
     pro->regs->ecx = 0;
     pro->regs->eax = 0;
-    pro->regs->eip = (uint32_t) entry;
+    pro->regs->eip = (uint32_t) process_entry;
     pro->entry = entry;
     pro->regs->cs = 0x08;
     pro->regs->eflags = 0x202;
@@ -145,7 +145,7 @@ process_t *schedule(){
         }        
         next = next->next;
     }
-    return next;
+    return NULL;
 }
 
 void wake_processes(void){
@@ -160,11 +160,18 @@ void wake_processes(void){
 }
 
 void exit_process(){
+    process_t *dead = current_process;
+    process_t *next = schedule();
+
+    if (next == NULL || next == dead) {        
+        print_string("PANIC: no ready process after exit\n", &i, &j);
+        __asm__ volatile("cli; hlt");
+    }
+
+    
     current_process->state = PROCESS_TERMINATED;
     remove_process_list(current_process);
 
-    process_t *dead = current_process;
-    process_t *next = schedule();
     current_process = next;
     restore_esp(next);
 

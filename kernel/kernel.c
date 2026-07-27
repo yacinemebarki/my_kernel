@@ -116,7 +116,7 @@ void irq0_handler(registers_t *regs){
 
     wake_processes();
     process_t *next = schedule();
-    if(next != current_process){
+    if(next != NULL && next != current_process){
         context_switch(regs, next);
     }
 }
@@ -207,7 +207,7 @@ void kernel(){
     process_t *p1 = create_process(uptime_task);
     process_t *p2 = create_process(test_sleep);
     process_list = p1;
-    p1->next = p2;
+    add_process(p2);
     current_process = p1;
 
     restore_esp(p1);   

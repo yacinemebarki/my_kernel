@@ -128,22 +128,6 @@ gdt_data:
     db 11001111b
     db 0x00
 
-gdt_user_code:
-    dw 0xFFFF
-    dw 0x0000
-    db 0x00
-    db 11111010b
-    db 11001111b
-    db 0x00
-
-gdt_user_data:
-    dw 0xFFFF
-    dw 0x0000
-    db 0x00
-    db 11110010b
-    db 11001111b
-    db 0x00
-
 gdt_end:
 
 gdt_descriptor:

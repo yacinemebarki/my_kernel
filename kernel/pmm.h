@@ -39,5 +39,6 @@ uint32_t allocate_page();
 uint32_t kmalloc(uint32_t size);
 void kfree(uint32_t addr);
 void inspect();
+void memset(void *ptr, int value, uint32_t size);
 
 #endif

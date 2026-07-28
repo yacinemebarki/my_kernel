@@ -38,9 +38,18 @@ struct gdt_entry {
     uint8_t  base_high;
 } __attribute__((packed));
 
+struct gdt_ptr {
+    uint16_t limit;
+    uint32_t base;
+} __attribute__((packed));
+
 extern void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
+extern void gdt_flush(uint32_t);
+extern void tss_flush(void);
 
 extern tss_t tss;
+extern struct  gdt_entry gdt[6];
+extern struct gdt_ptr gp;
 
 #endif
 

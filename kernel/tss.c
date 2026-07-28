@@ -4,6 +4,7 @@
 
 tss_t tss;
 struct gdt_entry gdt[6];
+struct gdt_ptr gp;
 
 void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran){
     gdt[num].base_low = base & 0xFFFF;
@@ -22,6 +23,22 @@ void init_tss(void){
     tss.ss0 = KERNEL_DS;
     tss.esp0 = 0x90000;
     tss.iomap_base = sizeof(tss);
+}
+
+void init_gdt(void){
+    gdt_set_gate(0, 0, 0, 0, 0);                 
+    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);  
+    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);  
+    gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); 
+    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);  
+
+    init_tss();   
+
+    gp.limit = sizeof(gdt) - 1;
+    gp.base = (uint32_t)&gdt;
+
+    gdt_flush((uint32_t)&gp);
+    tss_flush();
 }
 
 void set_kernel_stack(uint32_t stack){

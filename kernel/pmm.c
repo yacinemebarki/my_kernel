@@ -302,5 +302,4 @@ void memset(void *ptr, int value, uint32_t size){
     while(size--){
         *p++ = (unsigned char)value;
     }
-    return ptr;
 }

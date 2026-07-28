@@ -2,6 +2,7 @@
 #include "vga.h"
 #include "pmm.h"
 #include "process.h"
+#include "tss.h"
 
 extern int i;
 extern int j;
@@ -256,6 +257,66 @@ void test_scheduler(void){
 
     current_process = NULL;
     process_list = NULL;
+}
+
+
+void test_gdt_tss(void){
+    print_string("\nTEST: gdt_tss\n\n", &i, &j);
+
+    init_gdt();
+
+    print_string("GDT initialized\n", &i, &j);
+
+    uint16_t cs;
+
+    __asm__ volatile(
+        "mov %%cs, %0"
+        : "=r"(cs)
+    );
+
+    print_string("CS = ", &i, &j);
+    print_hex(cs, &i);
+
+    if (cs == 0x08){
+        print_string("kernel code OK\n", &i, &j);
+    }
+    else{
+        print_string("Kernel code ERROR\n", &i, &j);
+    }
+    uint16_t ds;
+
+    __asm__ volatile(
+        "mov %%ds, %0"
+        : "=r"(ds)
+    );
+
+    print_string("DS = ", &i, &j);
+    print_hex(ds, &i);
+
+    if (ds == 0x10){
+        print_string("Kernel data OK\n", &i, &j);
+    }
+    else{
+        print_string("Kernel data ERROR\n", &i, &j);
+    }
+    uint16_t tr;
+
+    __asm__ volatile(
+        "str %0"
+        : "=r"(tr)
+    );
+
+    print_string("TR = ", &i, &j);
+    print_hex(tr, &i);
+
+
+    if (tr == 0x28){
+        print_string("TSS OK\n", &i, &j);
+    }
+    else{
+        print_string("TSS ERROR\n", &i, &j);
+    }
+
 }
 
 void run_tests(void){

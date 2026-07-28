@@ -8,6 +8,7 @@
 #include "pmm.h"
 #include "tests.h"
 #include "process.h"
+#include "tss.h"
 
 //define
 #define HZ 100
@@ -182,6 +183,7 @@ void kernel(){
     
     print_string("Before paging \n", &i, &j);
 
+    test_gdt_tss();
     build_first_page();
     print_string("\n", &i, &j);
     load_page_directory(page_directory);

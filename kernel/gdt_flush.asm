@@ -14,4 +14,4 @@ gdt_flush:
     jmp 0x08:.flush 
 
 .flush:
-    iret
+    ret

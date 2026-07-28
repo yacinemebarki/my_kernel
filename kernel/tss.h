@@ -46,6 +46,8 @@ struct gdt_ptr {
 extern void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
 extern void gdt_flush(uint32_t);
 extern void tss_flush(void);
+void init_gdt(void);
+void init_tss(void);
 
 extern tss_t tss;
 extern struct  gdt_entry gdt[6];

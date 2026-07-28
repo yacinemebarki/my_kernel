@@ -65,7 +65,7 @@ kernel:
 	$(CC) $(CFLAGS) $(PMM_C) -o $(PMM_O)
 	$(CC) $(CFLAGS) $(TESTS_C) -o $(TESTS_O)
 	$(CC) $(CFLAGS) $(PROCESS_C) -o $(PROCESS_O)
-	$(CC) $(CFLAGS) $(TESTS_C) -o $(TSS_O)
+	$(CC) $(CFLAGS) $(TSS_C) -o $(TSS_O)
 	nasm -f elf32 $(KERNEL_ENTRY) -o $(KERNEL_ENTRY_O)
 	nasm -f elf32 $(KEYBOARD_ISR) -o $(KEYBOARD_ISR_O)
 	nasm -f elf32 $(PIT_ISR) -o $(PIT_ISR_O)
@@ -74,7 +74,7 @@ kernel:
 	nasm -f elf32 $(RESTORE_ESP_ISR) -o $(RESTORE_ESP_O)
 	nasm -f elf32 $(TSS_FLUSH_ASM) -o $(TSS_FLUSH_O)
 	nasm -f elf32 $(GDT_FLUSH_ASM) -o $(GDT_FLUSH_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) 
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) $(TSS_FLUSH_O) $(GDT_FLUSH_O) $(TSS_O)
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

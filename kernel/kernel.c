@@ -9,12 +9,14 @@
 #include "tests.h"
 #include "process.h"
 #include "tss.h"
+#include "user_space.h"
 
 //define
 #define HZ 100
 #define TIME_POS 160
 #define up_pos 0
 #define start_pos 240
+#define USER_STACK_TOP 0x80000
 
 
 //avoid ide error
@@ -25,6 +27,7 @@ extern void enable_paging(void);
 extern void isr8();
 extern void isr13();
 extern void isr14();
+extern void enter_user_mode(uint32_t user_main, uint32_t user_stack_top);
 
 //idt attribute table and pointer
 struct idt_pointer ptr;
@@ -183,7 +186,7 @@ void kernel(){
     
     print_string("Before paging \n", &i, &j);
 
-    test_gdt_tss();
+    init_gdt();
     build_first_page();
     print_string("\n", &i, &j);
     load_page_directory(page_directory);
@@ -207,10 +210,10 @@ void kernel(){
     unsigned long last = 0;
     unsigned long test = 0;
     process_t *p1 = create_process(uptime_task);
-    process_t *p2 = create_process(test_sleep);
     process_list = p1;
-    add_process(p2);
     current_process = p1;
 
     restore_esp(p1);   
+
+    enter_user_mode((uint32_t)user_main, USER_STACK_TOP);
 }

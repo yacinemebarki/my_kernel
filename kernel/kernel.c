@@ -28,6 +28,7 @@ extern void isr8();
 extern void isr13();
 extern void isr14();
 extern void enter_user_mode(uint32_t user_main, uint32_t user_stack_top);
+extern void syscall_handler();
 
 //idt attribute table and pointer
 struct idt_pointer ptr;
@@ -176,7 +177,9 @@ void test_sleep(void){
 
 }
 
-
+void syscall_dispatch(void){
+    print_string("Got syscall!\n", &i, &j);
+}
 
 void kernel(){
     //fix the screen
@@ -197,13 +200,18 @@ void kernel(){
     ptr.base = (uint32_t)&idt;
     remap_pic();
     outb(0x21, 0xFC);
-    add(33, (uint32_t)keyboard_isr, idt);
-    add(32, (uint32_t)irq0, idt);
-    add(8,  (uint32_t)isr8,  idt);
-    add(13, (uint32_t)isr13, idt);
-    add(14, (uint32_t)isr14, idt);
+    add(33, (uint32_t)keyboard_isr, idt, 0x8E);
+    add(32, (uint32_t)irq0, idt, 0x8E);
+    add(8,  (uint32_t)isr8,  idt, 0x8E);
+    add(13, (uint32_t)isr13, idt, 0x8E);
+    add(14, (uint32_t)isr14, idt, 0x8E);
+    add(0x80, (uint32_t)syscall_handler, idt, 0xEE);
     load_idt(&ptr);
     __asm__ volatile("sti");
+
+    print_string("Before user mode\n", &i, &j);
+    enter_user_mode((uint32_t)user_main, USER_STACK_TOP);
+    print_string("After user mode\n", &i, &j);
 
     //init pit
     pit_init(11931);
@@ -213,7 +221,6 @@ void kernel(){
     process_list = p1;
     current_process = p1;
 
-    restore_esp(p1);   
+    restore_esp(p1); 
 
-    enter_user_mode((uint32_t)user_main, USER_STACK_TOP);
 }

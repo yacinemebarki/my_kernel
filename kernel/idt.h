@@ -15,7 +15,7 @@ struct idt_pointer {
     uint32_t base;
 } __attribute__((packed));
 
-void add(int n, uint32_t handler, struct interrupt_des *idt);
+void add(int n, uint32_t handler, struct interrupt_des *idt, uint8_t type);
 void load_idt(struct idt_pointer *ptr);
 
 #endif

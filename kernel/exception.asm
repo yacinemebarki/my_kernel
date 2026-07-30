@@ -30,6 +30,6 @@ isr_common:
 
     add esp, 4
     popa
-    add esp, 4
+    add esp, 8
     iretd
 

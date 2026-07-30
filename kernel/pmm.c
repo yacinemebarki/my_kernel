@@ -120,9 +120,9 @@ void free(uint32_t physical_address){
 
 void build_first_page(){
     for(int k = 0; k < 1024; k++){
-        page_table[k] = (k * 0x1000) | 3;
+        page_table[k] = (k * 0x1000) | 7;
     }
-    page_directory[0] = ((uint32_t)page_table) | 3;
+    page_directory[0] = ((uint32_t)page_table) | 7;
 
     for (int k = 1; k < 1024; k++){
         page_directory[k] = 0;

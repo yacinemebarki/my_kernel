@@ -17,6 +17,7 @@ enter_user_mode:
 
     pop ecx
     or ecx, 0x200
+    push ecx
 
     push 0x1B
 

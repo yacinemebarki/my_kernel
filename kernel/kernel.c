@@ -179,6 +179,14 @@ void test_sleep(void){
 
 void syscall_dispatch(void){
     print_string("Got syscall!\n", &i, &j);
+    pit_init(11931);
+    unsigned long last = 0;
+    unsigned long test = 0;
+    process_t *p1 = create_process(uptime_task);
+    process_list = p1;
+    current_process = p1;
+
+    restore_esp(p1);     
 }
 
 void kernel(){
@@ -210,17 +218,9 @@ void kernel(){
     __asm__ volatile("sti");
 
     print_string("Before user mode\n", &i, &j);
-    enter_user_mode((uint32_t)user_main, USER_STACK_TOP);
-    print_string("After user mode\n", &i, &j);
-
-    //init pit
-    pit_init(11931);
-    unsigned long last = 0;
-    unsigned long test = 0;
-    process_t *p1 = create_process(uptime_task);
-    process_list = p1;
-    current_process = p1;
-
-    restore_esp(p1); 
+    int chose = 1;
+    if(chose == 1){
+        enter_user_mode((uint32_t)user_main, USER_STACK_TOP);
+    }
 
 }

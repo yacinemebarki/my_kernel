@@ -25,4 +25,8 @@ static inline void invlpg(uint32_t virtual){
     asm volatile("invlpg (%0)" : : "r"(virtual) : "memory");
 }
 
+static inline void hlt(){
+    __asm__ volatile("hlt");
+}
+
 #endif

@@ -58,8 +58,10 @@ static inline void remap_pic(void){
 
 //keyboard handler
 __attribute__((used, externally_visible))
+int last_key;
 void keyboard_handler(void){
-    char c = read();
+    int c = read();
+    last_key = c;
     if(i >= 2000){
         add_line();
     }
@@ -80,19 +82,19 @@ void keyboard_handler(void){
         j--;
         clear(i);
         move(i);
-    }else if(c == '2'){
+    }else if(c == KEY_UP){
+        i = i - 80;
+        move(i);
+    }else if(c == KEY_DOWN){
         i = i + 80;
         if(i >= 2000){
             add_line();
         }
         move(i);
-    }else if(c == '1'){
-        i = i - 80;
-        move(i);
-    }else if(c == '3'){
+    }else if(c == KEY_LEFT){
         i--;
         move(i);
-    }else if(c == '4'){
+    }else if(c == KEY_RIGHT){
         i++;
         if(i >= 2000){
             add_line();
@@ -177,8 +179,26 @@ void test_sleep(void){
 
 }
 
+int switch_mode(){
+    last_key = KEY_NONE;
+    unsigned long end = ticks + 300;
+    print_string("click f12 if you want to stay in the bios", &i, &j);
+    while (ticks < end){
+        if(last_key == KEY_F10){
+            i = 400;
+            j = 0;
+            return 0;
+        }
+        hlt();
+    }
+    i = 400;
+    j = 0;
+    return 1;
+        
+}
+
 void syscall_dispatch(void){
-    print_string("Got syscall!\n", &i, &j);
+    print_string("from user space!\n", &i, &j);
     pit_init(11931);
     unsigned long last = 0;
     unsigned long test = 0;
@@ -208,19 +228,30 @@ void kernel(){
     ptr.base = (uint32_t)&idt;
     remap_pic();
     outb(0x21, 0xFC);
-    add(33, (uint32_t)keyboard_isr, idt, 0x8E);
     add(32, (uint32_t)irq0, idt, 0x8E);
     add(8,  (uint32_t)isr8,  idt, 0x8E);
     add(13, (uint32_t)isr13, idt, 0x8E);
     add(14, (uint32_t)isr14, idt, 0x8E);
     add(0x80, (uint32_t)syscall_handler, idt, 0xEE);
+    add(33, (uint32_t)keyboard_isr, idt, 0x8E);
     load_idt(&ptr);
-    __asm__ volatile("sti");
+    sti();
+    pit_init(11931);
 
-    print_string("Before user mode\n", &i, &j);
-    int chose = 1;
-    if(chose == 1){
-        enter_user_mode((uint32_t)user_main, USER_STACK_TOP);
+
+    int choice = switch_mode();
+
+    clear_screen();
+
+    if(choice == 1){
+        syscall_dispatch();
     }
+
+    print_string("from the bios", &i, &j);
+
+    unsigned long last = 0;
+    unsigned long test = 0;
+    uptime_task();
+
 
 }

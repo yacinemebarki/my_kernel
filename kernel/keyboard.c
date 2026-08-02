@@ -1,14 +1,18 @@
+#include "keyboard.h"
 #include "asm_operation.h"
+#include "vga.h"
 
-char read(){
-    unsigned char code;
+extern int i;
+extern int j;
 
-    code = inb(0x60);
+int read(void){
+    unsigned char code = inb(0x60);
 
-    if(code & 0x80)
-        return 0;
+    if (code & 0x80)
+        return KEY_NONE;
 
-    switch(code){
+
+    switch (code){
         case 0x02: return '1';
         case 0x03: return '2';
         case 0x04: return '3';
@@ -51,11 +55,25 @@ char read(){
         case 0x39: return ' ';
         case 0x0E: return '\b';
 
-        case 0x48: return '1';
-        case 0x50: return '2';
-        case 0x4B: return '3';
-        case 0x4D: return '4';
+        case 0x48: return KEY_UP;
+        case 0x50: return KEY_DOWN;
+        case 0x4B: return KEY_LEFT;
+        case 0x4D: return KEY_RIGHT;
 
-        default: return 0;
+        case 0x3B: return KEY_F1;
+        case 0x3C: return KEY_F2;
+        case 0x3D: return KEY_F3;
+        case 0x3E: return KEY_F4;
+        case 0x3F: return KEY_F5;
+        case 0x40: return KEY_F6;
+        case 0x41: return KEY_F7;
+        case 0x42: return KEY_F8;
+        case 0x43: return KEY_F9;
+        case 0x44: return KEY_F10;
+        case 0x57: return KEY_F11;
+        case 0x58: return KEY_F12;
+
+        default:
+            return KEY_NONE;
     }
 }

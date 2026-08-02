@@ -16,6 +16,7 @@ enter_user_mode:
     pushfd
 
     pop ecx
+    and ecx, 0xFFFFBFFF
     or ecx, 0x200
     push ecx
 

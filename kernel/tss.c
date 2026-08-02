@@ -30,7 +30,7 @@ void init_gdt(void){
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);  
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);  
     gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); 
-    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);  
+    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF3, 0xCF);  
 
     init_tss();   
 

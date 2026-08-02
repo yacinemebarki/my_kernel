@@ -198,15 +198,7 @@ int switch_mode(){
 }
 
 void syscall_dispatch(void){
-    print_string("from user space!\n", &i, &j);
-    pit_init(11931);
-    unsigned long last = 0;
-    unsigned long test = 0;
-    process_t *p1 = create_process(uptime_task);
-    process_list = p1;
-    current_process = p1;
-
-    restore_esp(p1);     
+    
 }
 
 void kernel(){
@@ -244,7 +236,7 @@ void kernel(){
     clear_screen();
 
     if(choice == 1){
-        syscall_dispatch();
+        user_main();
     }
 
     print_string("from the bios", &i, &j);

@@ -31,6 +31,7 @@ typedef struct process{
     uint32_t kernel_stack_to;
     registers_t *regs;
     process_state_t state; 
+    int exit_code;
     void (*entry)(void);
     int wake;
     struct process *next;   

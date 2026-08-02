@@ -75,6 +75,18 @@ The kernel also implements more runtime helpers in `kernel/pmm.c`:
 
 These tests and helper functions are centralized in `kernel/tests.c` and can be activated from `kernel/kernel.c` when needed.
 
+## Recent features
+
+The kernel has grown beyond the initial bootloader stub and now includes several working pieces:
+
+- Protected-mode boot and GDT/TSS setup for kernel and user-mode transitions
+- Basic paging support with page directory/table setup and page mapping helpers
+- Interrupt handling for keyboard, timer, and CPU faults via the IDT
+- A simple process scheduler with timer-driven context switching
+- User-space entry support with `enter_user_mode()` and syscall handling
+- A VGA console with cursor movement, line wrapping, clear-screen, and backspace support
+- Keyboard input handling for printable characters, arrow keys, and function keys
+
 ## Project structure
 
 - boot/

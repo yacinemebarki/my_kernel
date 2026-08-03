@@ -10,6 +10,7 @@
 #include "process.h"
 #include "tss.h"
 #include "user_space.h"
+#include "syscall.h"
 
 //define
 #define HZ 100
@@ -122,10 +123,8 @@ void irq0_handler(registers_t *regs){
     }
 
     wake_processes();
-    process_t *next = schedule();
-    if(next != NULL && next != current_process){
-        context_switch(regs, next);
-    }
+    sys_yield(regs);    
+   
 }
 
 void fault_handler(uint32_t vector){
@@ -195,10 +194,6 @@ int switch_mode(){
     j = 0;
     return 1;
         
-}
-
-void syscall_dispatch(void){
-    
 }
 
 void kernel(){

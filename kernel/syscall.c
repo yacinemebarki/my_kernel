@@ -1,0 +1,71 @@
+#include "vga.h"
+#include "asm_operation.h"
+#include "syscall.h"
+
+//vga variable
+extern int i;
+extern int j;
+
+//process variable
+extern process_t *current_process;
+
+void sys_prints(char *string){
+    print_string(string, &i, &j);
+}
+
+void sys_printc(char string){
+    print(string, i);
+}
+
+void sys_printn(unsigned long n){
+    print_number(n, &i);
+}
+
+void sys_printhex(uint32_t n){
+    print_hex(n, &i);
+}
+
+
+void sys_exit(int status){
+    current_process->exit_code = status;
+    exit_process();
+    while (1);
+}
+
+void sys_yield(registers_t *regs){
+    process_t *next = schedule();
+    if(next != NULL && next != current_process){
+        context_switch(regs, next);
+    }
+}
+
+void syscall_dispatch(registers_t *regs){
+    switch (regs->eax){
+        case SYS_EXIT:
+            sys_exit((int)regs->ebx);
+            break;
+
+        case SYS_YIELD:
+            sys_yield(regs);
+            break;
+
+        case SYS_PRINTS:
+            sys_prints((char *)regs->ebx);
+            break;
+
+        case SYS_PRINTC:
+            sys_printc((char)regs->ebx);
+            break;
+
+        case SYS_PRINTN:
+            sys_printn((unsigned long)regs->ebx);
+            break;
+
+        case SYS_PRINTHEX:
+            sys_printhex((uint32_t)regs->ebx);
+            break;
+
+        default:
+            break;
+    }
+}

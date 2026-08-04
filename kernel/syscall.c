@@ -48,6 +48,15 @@ void sys_print_seconds(unsigned long seconds){
     print_number(seconds, &pos);
 }
 
+extern unsigned long ticks;
+void sys_sleep(unsigned long time){
+    unsigned long start = ticks;
+    sti();
+    while (ticks < start + time) {
+        hlt();
+    }
+}
+
 void syscall_dispatch(registers_t *regs){
     switch (regs->eax){
         case SYS_EXIT:
@@ -78,7 +87,10 @@ void syscall_dispatch(registers_t *regs){
             break;
         case SYS_PRINT_SECONDS:
             sys_print_seconds((unsigned long)regs->ebx);
-            break;           
+            break;   
+        case SYS_SLEEP:
+            sys_sleep((unsigned long)regs->ebx);
+            break;        
 
         default:
             break;

@@ -41,7 +41,12 @@ void user_up_time(){
     }
 }
 
+void user_sleep(int time){
+    __asm__ volatile("int $0x080":: "a"(SYS_SLEEP), "b"(time));
+}
+
 void user_main(){
     write_string("hello to your space");
+    user_sleep(300);
     user_up_time();
 }

@@ -1,6 +1,7 @@
 #include "vga.h"
 #include "asm_operation.h"
 #include "syscall.h"
+#include "pit.h"
 
 //vga variable
 extern int i;
@@ -39,6 +40,14 @@ void sys_yield(registers_t *regs){
     }
 }
 
+void sys_print_seconds(unsigned long seconds){
+    int message_pos = 0;
+    int t = 0;
+    print_time_message("Up Time", message_pos);
+    int pos = 160;
+    print_number(seconds, &pos);
+}
+
 void syscall_dispatch(registers_t *regs){
     switch (regs->eax){
         case SYS_EXIT:
@@ -64,6 +73,12 @@ void syscall_dispatch(registers_t *regs){
         case SYS_PRINTHEX:
             sys_printhex((uint32_t)regs->ebx);
             break;
+        case SYS_SECONDS:
+            regs->eax = get_seconds();
+            break;
+        case SYS_PRINT_SECONDS:
+            sys_print_seconds((unsigned long)regs->ebx);
+            break;           
 
         default:
             break;

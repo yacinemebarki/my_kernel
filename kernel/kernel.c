@@ -13,7 +13,6 @@
 #include "syscall.h"
 
 //define
-#define HZ 100
 #define TIME_POS 160
 #define up_pos 0
 #define start_pos 240
@@ -133,8 +132,8 @@ void fault_handler(uint32_t vector){
     __asm__ volatile("cli; hlt");
 }
 
-void get_seconds(void){
-    unsigned long second = ticks / HZ;
+void show_seconds(void){
+    unsigned long second = get_seconds();
     int pos = TIME_POS;
     print_number(second, &pos);
 }
@@ -156,7 +155,7 @@ void uptime_task(void){
         if (sec != last){
             last = sec;
             print_time_message("Up Time", up_pos);
-            get_seconds();
+            show_seconds();
         }
     }
 }

@@ -9,6 +9,8 @@
 #define SYS_PRINTN 4
 #define SYS_PRINTHEX 5
 #define SYS_SLEEP  6
+#define SYS_SECONDS 7
+#define SYS_PRINT_SECONDS 8
 
 void sys_yield(registers_t *regs);
 void sys_exit(int status);

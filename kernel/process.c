@@ -55,6 +55,7 @@ process_t *create_process(void (*entry) (void)){
     pro->regs->cs = 0x08;
     pro->regs->eflags = 0x202;
     process_number++;
+    add_process(pro);
     return pro;
 }
 
@@ -76,6 +77,7 @@ void add_process(process_t *pro){
     process_t *current = process_list;
     if (current == NULL) {
         process_list = pro;
+        current_process = pro;
         return;
     }
     while (current->next != NULL) {

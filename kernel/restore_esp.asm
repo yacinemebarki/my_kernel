@@ -5,5 +5,10 @@ global restore_esp
 restore_esp:
     mov eax, [esp + 4]
     mov esp, [eax + 16] 
+
+    pop gs
+    pop fs
+    pop es
+    pop ds
     popa 
     iretd

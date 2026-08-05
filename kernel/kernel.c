@@ -230,14 +230,14 @@ void kernel(){
     clear_screen();
 
     if(choice == 1){
-        user_main();
+        process_t *p1 = create_process(user_main);
+        restore_esp(current_process);
     }
 
     print_string("from the bios", &i, &j);
 
     unsigned long last = 0;
     unsigned long test = 0;
-    uptime_task();
-
-
+    process_t *p2 = create_process(uptime_task);
+    restore_esp(current_process);
 }

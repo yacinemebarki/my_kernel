@@ -11,6 +11,7 @@
 #define SYS_SLEEP  6
 #define SYS_SECONDS 7
 #define SYS_PRINT_SECONDS 8
+#define SYS_CREATE_PROCESS 9
 
 void sys_yield(registers_t *regs);
 void sys_exit(int status);

@@ -50,6 +50,8 @@ SYCALL_HANDELER_ISER = kernel/sycall_handeler.asm
 SYCALL_HANDELER_ISER_O = kernel/sycall_handeler.o 
 SYSCALL_C = kernel/syscall.c
 SYSCALL_O = kernel/syscall.o
+USER_TEST_C = kernel/user_test.c 
+USER_TEST_O = kernel/user_test.o  
 
 BOOT_BIN = boot/boot.bin
 KERNEL_BIN = kernel.bin
@@ -76,6 +78,7 @@ kernel:
 	$(CC) $(CFLAGS) $(TSS_C) -o $(TSS_O)
 	$(CC) $(CFLAGS) $(USER_SPACE_C) -o $(USER_SPACE_O)
 	$(CC) $(CFLAGS) $(SYSCALL_C) -o $(SYSCALL_O)
+	$(CC) $(CFLAGS) $(USER_TEST_C) -o $(USER_TEST_O)
 	nasm -f elf32 $(KERNEL_ENTRY) -o $(KERNEL_ENTRY_O)
 	nasm -f elf32 $(KEYBOARD_ISR) -o $(KEYBOARD_ISR_O)
 	nasm -f elf32 $(PIT_ISR) -o $(PIT_ISR_O)
@@ -86,7 +89,7 @@ kernel:
 	nasm -f elf32 $(GDT_FLUSH_ASM) -o $(GDT_FLUSH_O)
 	nasm -f elf32 $(ENTER_USER_MODE_ISER) -o $(ENTER_USER_MODE_ISER_O)
 	nasm -f elf32 $(SYCALL_HANDELER_ISER) -o $(SYCALL_HANDELER_ISER_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) $(TSS_FLUSH_O) $(GDT_FLUSH_O) $(TSS_O) $(USER_SPACE_O) $(SYSCALL_O) $(ENTER_USER_MODE_ISER_O) $(SYCALL_HANDELER_ISER_O)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) $(TSS_FLUSH_O) $(GDT_FLUSH_O) $(TSS_O) $(USER_SPACE_O) $(SYSCALL_O) $(ENTER_USER_MODE_ISER_O) $(SYCALL_HANDELER_ISER_O) $(USER_TEST_O)
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

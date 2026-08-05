@@ -57,6 +57,11 @@ void sys_sleep(unsigned long time){
     }
 }
 
+process_t *sys_create_process(void (*entery)(void)){
+    process_t *pro = create_process(entery);
+    return pro;
+}
+
 void syscall_dispatch(registers_t *regs){
     switch (regs->eax){
         case SYS_EXIT:
@@ -90,7 +95,10 @@ void syscall_dispatch(registers_t *regs){
             break;   
         case SYS_SLEEP:
             sys_sleep((unsigned long)regs->ebx);
-            break;        
+            break;
+        case SYS_CREATE_PROCESS:
+            regs->eax = (uint32_t) sys_create_process((void (*)(void))regs->ebx);
+            break;      
 
         default:
             break;

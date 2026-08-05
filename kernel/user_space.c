@@ -1,5 +1,6 @@
 #include "syscall.h"
 #include "asm_operation.h"
+#include "user_test.h"
 
 void write_string(char *str){
     __asm__ volatile("int $0x80":: "a"(SYS_PRINTS), "b"(str): "memory");
@@ -41,12 +42,28 @@ void user_up_time(){
     }
 }
 
+void user_yield(){
+    __asm__ volatile("int $0x080":: "a"(SYS_YIELD));
+}
+
+void user_exit(int status){
+    __asm__ volatile("int $0x080":: "a"(SYS_EXIT), "b"(status));
+}
+
+process_t *user_create_process(void(*entry)(void)){
+    process_t *pro;
+    __asm__ volatile("int $0x080":"=a"(pro): "a"(SYS_CREATE_PROCESS), "b"(entry));
+    return pro;
+}
+
 void user_sleep(int time){
     __asm__ volatile("int $0x080":: "a"(SYS_SLEEP), "b"(time));
 }
 
 void user_main(){
     write_string("hello to your space");
-    user_sleep(300);
-    user_up_time();
+    process_t *p1 = user_create_process(parent_process);
+    while(1){
+        user_yield();
+    }
 }

@@ -33,9 +33,33 @@ void sys_exit(int status){
     while (1);
 }
 
+int number_switch = 0;
+
 void sys_yield(registers_t *regs){
+    process_t *old = current_process;
     process_t *next = schedule();
-    if(next != NULL && next != current_process){
+    number_switch++;
+
+    if (next != NULL && next != old) {
+        print_string("FROM ", &i, &j);
+        print_number(current_process->pid, &i);
+
+        print_string(" TO ", &i, &j);
+        print_number(next->pid, &i);
+
+        print_string(" EIP=", &i, &j);
+        print_hex(regs->eip, &i);
+
+        print_string(" CS=", &i, &j);
+        print_hex(regs->cs, &i);
+
+        print_string(" ESP=", &i, &j);
+        print_hex(regs->esp, &i);
+
+        print_string("\n", &i, &j);
+        print_string("number of switch: ", &i, &j);
+        print_number(number_switch, &i);
+        print_string("\n", &i, &j);
         context_switch(regs, next);
     }
 }
@@ -57,8 +81,8 @@ void sys_sleep(unsigned long time){
     }
 }
 
-process_t *sys_create_process(void (*entery)(void)){
-    process_t *pro = create_process(entery);
+process_t *sys_create_process(void (*entery)(void), int mode){
+    process_t *pro = create_process(entery, mode);
     return pro;
 }
 
@@ -97,7 +121,7 @@ void syscall_dispatch(registers_t *regs){
             sys_sleep((unsigned long)regs->ebx);
             break;
         case SYS_CREATE_PROCESS:
-            regs->eax = (uint32_t) sys_create_process((void (*)(void))regs->ebx);
+            regs->eax = (uint32_t) sys_create_process((void (*)(void))regs->ebx, (int)regs->ecx);
             break;      
 
         default:

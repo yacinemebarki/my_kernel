@@ -12,6 +12,7 @@
 #include "user_space.h"
 #include "syscall.h"
 
+
 //define
 #define TIME_POS 160
 #define up_pos 0
@@ -230,7 +231,7 @@ void kernel(){
     clear_screen();
 
     if(choice == 1){
-        process_t *p1 = create_process(user_main);
+        process_t *p1 = create_process(user_main, PROCESS_KERNEL);
         restore_esp(current_process);
     }
 
@@ -238,6 +239,6 @@ void kernel(){
 
     unsigned long last = 0;
     unsigned long test = 0;
-    process_t *p2 = create_process(uptime_task);
+    process_t *p2 = create_process(uptime_task, PROCESS_KERNEL);
     restore_esp(current_process);
 }

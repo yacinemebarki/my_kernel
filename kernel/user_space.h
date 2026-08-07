@@ -12,7 +12,7 @@ unsigned long user_get_second(void);
 void user_up_time(void);
 void user_yield(void);
 void user_exit(int status);
-process_t *user_create_process(void (*entry)(void));
+process_t *user_create_process(void (*entry)(void), int mode);
 void user_sleep(int time);
 void user_main(void);
 

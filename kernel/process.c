@@ -21,11 +21,12 @@ void process_test(){
 }
 
 uint16_t process_number = 1;
-process_t *create_process(void (*entry) (void)){
+process_t *create_process(void (*entry)(void), int mode){
     process_t *pro = (process_t *)kmalloc(sizeof(process_t));
-    if (pro == NULL) {
+
+    if (pro == NULL)
         return NULL;
-    }
+
     uint32_t kernel_stack = allocate_page();
 
     if (kernel_stack == 0) {
@@ -33,29 +34,58 @@ process_t *create_process(void (*entry) (void)){
         return NULL;
     }
 
-    uint32_t *stack = (uint32_t *)(kernel_stack + 4096);
-    stack -= sizeof(registers_t) / sizeof(uint32_t);
-    pro->regs = (registers_t *)stack;
+    uint32_t user_stack = 0;
 
+    if (mode == PROCESS_USER) {
+        user_stack = allocate_page();
+
+        if (user_stack == 0) {
+            free_page(kernel_stack);
+            kfree((uint32_t)pro);
+            return NULL;
+        }
+    }
+
+    registers_t *regs = (registers_t *)(kernel_stack + 4096 - 128);
+
+    pro->regs = regs;
     pro->kernel_stack = kernel_stack;
-    pro->pid = process_number;
+    pro->pid = process_number++;
     pro->state = PROCESS_READY;
     pro->wake = 0;
     pro->next = NULL;
-    pro->regs->eip = 0;
-    pro->regs->edi = 0;
-    pro->regs->esi = 0;
-    pro->regs->ebp = 0;
-    pro->regs->ebx = 0;
-    pro->regs->edx = 0;
-    pro->regs->ecx = 0;
-    pro->regs->eax = 0;
-    pro->regs->eip = (uint32_t) process_entry;
     pro->entry = entry;
-    pro->regs->cs = 0x08;
-    pro->regs->eflags = 0x202;
-    process_number++;
+    memset(regs, 0, sizeof(registers_t));
+    if (mode == PROCESS_KERNEL) {
+
+        regs->gs = KERNEL_DS;
+        regs->fs = KERNEL_DS;
+        regs->es = KERNEL_DS;
+        regs->ds = KERNEL_DS;
+
+        regs->eip = (uint32_t)process_entry;
+        regs->cs = KERNEL_CS;
+        regs->eflags = 0x202;
+
+        regs->esp = kernel_stack + 4096;
+
+    } else {
+
+        regs->gs = USER_DS;
+        regs->fs = USER_DS;
+        regs->es = USER_DS;
+        regs->ds = USER_DS;
+
+        regs->eip = (uint32_t)process_entry;
+        regs->cs = USER_CS;
+        regs->eflags = 0x202;
+
+        regs->user_esp = user_stack + 4096;
+        regs->user_ss = USER_DS;
+    }
+
     add_process(pro);
+
     return pro;
 }
 
@@ -63,14 +93,6 @@ void remove_process(process_t *pro){
     free_page(pro->kernel_stack);
     kfree((uint32_t)pro);
 }
-
-void creat_first_process(void (*entry) (void)){
-    process_t *pro = create_process(entry);
-    process_list = pro;
-    current_process = pro;
-}
-
-
 
 void add_process(process_t *pro){
     pro->next = NULL;
@@ -119,8 +141,27 @@ process_t *find_process(process_t *pro){
 }
 
 void save_context(registers_t *regs){
-    if(current_process != NULL)
-        current_process->regs = regs;
+    if (current_process != NULL && current_process->regs != NULL) {
+
+        print_string("SAVE PID=", &i, &j);
+        print_number(current_process->pid, &i);
+
+        print_string(" regs=", &i, &j);
+        print_hex((uint32_t)regs, &i);
+
+        print_string(" stored=", &i, &j);
+        print_hex((uint32_t)current_process->regs, &i);
+
+        print_string(" EIP=", &i, &j);
+        print_hex(regs->eip, &i);
+
+        print_string(" CS=", &i, &j);
+        print_hex(regs->cs, &i);
+
+        print_string("\n", &i, &j);
+
+        *current_process->regs = *regs;
+    }
 }
 
 void context_switch(registers_t *reg, process_t *next){

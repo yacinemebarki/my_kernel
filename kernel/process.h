@@ -2,14 +2,22 @@
 #define PROCESS_H
 #include "types.h"
 
-typedef enum {
+#define KERNEL_CS 0x08
+#define KERNEL_DS 0x10
+#define USER_CS 0x1B
+#define USER_DS 0x23
+
+#define PROCESS_KERNEL 0
+#define PROCESS_USER 1
+
+typedef enum{
     PROCESS_READY,
     PROCESS_RUNNING,
     PROCESS_BLOCKED,
     PROCESS_TERMINATED
 } process_state_t;
 
-typedef struct registers {
+typedef struct registers{
     uint32_t gs;
     uint32_t fs;
     uint32_t es;
@@ -28,6 +36,9 @@ typedef struct registers {
     uint32_t eip;
     uint32_t cs;
     uint32_t eflags;
+
+    uint32_t user_esp;
+    uint32_t user_ss;
 } registers_t;
 
 typedef struct process{
@@ -36,19 +47,18 @@ typedef struct process{
     uint32_t kernel_stack;
     uint32_t kernel_stack_to;
     registers_t *regs;
-    process_state_t state; 
+    process_state_t state;
     int exit_code;
     void (*entry)(void);
     int wake;
-    struct process *next;   
+    struct process *next;
 } process_t;
 
 extern process_t *process_list;
 extern uint16_t process_number;
 extern process_t *current_process;
 
-process_t *create_process();
-void creat_first_process();
+process_t *create_process(void (*entry)(void), int mode);
 void add_process(process_t *pro);
 void remove_process(process_t *pro);
 void remove_process_list(process_t *pro);
@@ -61,7 +71,5 @@ void process_test();
 void exit_process();
 void process_entry();
 void wake_processes(void);
-
-
 
 #endif

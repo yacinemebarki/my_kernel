@@ -144,7 +144,7 @@ void test_process_list(void){
     process_list = NULL;
     process_number = 1;
 
-    creat_first_process(task1);
+    create_process(task1, PROCESS_KERNEL);
 
     process_t *first = process_list;
     if (first == NULL) {
@@ -156,8 +156,7 @@ void test_process_list(void){
     print_number(first->pid, &i);
     print_string("\n", &i, &j);
 
-    process_t *second = create_process(task2);
-    add_process(second);
+    process_t *second = create_process(task2, PROCESS_KERNEL);
 
     print_string("second pid=", &i, &j);
     print_number(second->pid, &i);
@@ -184,7 +183,7 @@ void test_process_list(void){
 void test_save_context(void){
     print_string("\nTEST: Save Context\n", &i, &j);
 
-    process_t *p = create_process(task1);
+    process_t *p = create_process(task1, PROCESS_KERNEL);
     current_process = p;
 
     registers_t regs;
@@ -210,7 +209,7 @@ void test_save_context(void){
 void test_first_process(void){
     print_string("\nTEST: First Process\n", &i, &j);
 
-    creat_first_process(task1);
+    create_process(task1, PROCESS_KERNEL);
 
     print_string("Starting process...\n", &i, &j);
 
@@ -223,9 +222,9 @@ void test_scheduler(void){
     process_list = NULL;
     current_process = NULL;
 
-    process_t *p1 = create_process(task1);
-    process_t *p2 = create_process(task2);
-    process_t *p3 = create_process(task3);
+    process_t *p1 = create_process(task1, PROCESS_KERNEL);
+    process_t *p2 = create_process(task2, PROCESS_KERNEL);
+    process_t *p3 = create_process(task3, PROCESS_KERNEL);
 
     process_list = p1;
     p1->next = p2;

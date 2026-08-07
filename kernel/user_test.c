@@ -10,7 +10,7 @@ void child_process(void){
 void parent_process(void){
     write_string("PARENT: creating child...\n");
 
-    process_t *child = user_create_process(child_process);
+    process_t *child = user_create_process(child_process, PROCESS_USER);
 
     write_string("PARENT: child created!\n");
 

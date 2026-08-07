@@ -4,6 +4,10 @@
 
 #define MAX_FREE_PAGES 1024
 
+#define PAGE_PRESENT 0x001
+#define PAGE_WRITE   0x002
+#define PAGE_USER    0x004
+
 
 typedef struct{
     unsigned long long base;
@@ -35,8 +39,8 @@ uint32_t *get_pte(uint32_t virtual);
 uint32_t get_map(uint32_t virtual);
 void free_page(uint32_t addr);
 void unmap_page(uint32_t virtual);
-uint32_t allocate_page();
-uint32_t kmalloc(uint32_t size);
+uint32_t allocate_page(unsigned int flag);
+uint32_t kmalloc(uint32_t size, unsigned int flag);
 void kfree(uint32_t addr);
 void inspect();
 void memset(void *ptr, int value, uint32_t size);

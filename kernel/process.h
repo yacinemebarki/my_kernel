@@ -10,6 +10,9 @@
 #define PROCESS_KERNEL 0
 #define PROCESS_USER 1
 
+#define KERNEL_STACK_SIZE 4096
+#define SAVED_REGS_OFFSET 0x100
+
 typedef enum{
     PROCESS_READY,
     PROCESS_RUNNING,

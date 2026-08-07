@@ -25,9 +25,9 @@ void test_allocation(void){
 
 void test_kmalloc(void){
     print_string("\nTEST: kmalloc\n", &i, &j);
-    uint32_t a = kmalloc(100);
-    uint32_t b = kmalloc(200);
-    uint32_t c = kmalloc(300);
+    uint32_t a = kmalloc(100, PAGE_PRESENT | PAGE_WRITE);
+    uint32_t b = kmalloc(200, PAGE_PRESENT | PAGE_WRITE);
+    uint32_t c = kmalloc(300, PAGE_PRESENT | PAGE_WRITE);
 
     print_string("a=", &i, &j);
     print_hex(a, &i);
@@ -42,8 +42,8 @@ void test_kmalloc(void){
 
 void test_kfree(void){
     print_string("\nTEST: kfree\n", &i, &j);
-    uint32_t a = kmalloc(100);
-    uint32_t b = kmalloc(200);
+    uint32_t a = kmalloc(100, PAGE_PRESENT | PAGE_WRITE);
+    uint32_t b = kmalloc(200, PAGE_PRESENT | PAGE_WRITE);
 
     print_string("a=", &i, &j);
     print_hex(a, &i);
@@ -51,7 +51,7 @@ void test_kfree(void){
     print_hex(b, &i);
     print_string("\nfree a\n", &i, &j);
     kfree(a);
-    uint32_t c = kmalloc(50);
+    uint32_t c = kmalloc(50, PAGE_PRESENT | PAGE_WRITE);
     print_string("c=", &i, &j);
     print_hex(c, &i);
     print_string("\n", &i, &j);
@@ -60,7 +60,7 @@ void test_kfree(void){
 void test_page_alloc_free(void){
     print_string("\nTEST: page alloc/free\n", &i, &j);
 
-    uint32_t vaddr = allocate_page();
+    uint32_t vaddr = allocate_page(PAGE_PRESENT | PAGE_WRITE);
     print_string("allocated virtual=", &i, &j);
     print_hex(vaddr, &i);
     print_string("\n", &i, &j);

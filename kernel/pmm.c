@@ -150,15 +150,26 @@ void map_page(uint32_t physical_address, uint32_t virtual_address, unsigned int 
         for (int k = 0; k < 1024; k++){
             table_ptr[k] = 0;
         }
-        page_directory[directory] = (uint32_t)new_table | 3;
+        unsigned int directory_flags = PAGE_PRESENT | PAGE_WRITE;
+
+        if (flags & PAGE_USER) {
+            directory_flags |= PAGE_USER;
+        }
+        page_directory[directory] = (uint32_t)new_table | directory_flags;
     }
+    if (flags & PAGE_USER)
+        page_directory[directory] |= PAGE_USER;
 
     uint32_t *table_ptr = (uint32_t *)(page_directory[directory] & 0xFFFFF000);
     table_ptr[table] = (physical_address & 0xFFFFF000) | flags;
     invlpg(virtual_address);
 }
 
-uint32_t allocate_page(){
+uint32_t allocate_page(unsigned int flag){
+    if (flag == 0) {
+        flag = PAGE_PRESENT | PAGE_WRITE;
+    }
+
     uint32_t physical = allocate(4096);
     if (physical == 0)
         return 0;
@@ -171,7 +182,9 @@ uint32_t allocate_page(){
         next_virtual += 4096;
     }
     
-    map_page(physical, virtual, 3);
+    map_page(physical, virtual, flag);
+    print_string("process was allocated", &i, &j);
+    print_hex(virtual, &i);
     return virtual;
 }
 
@@ -221,12 +234,16 @@ void unmap_page(uint32_t virtual){
     invlpg(virtual);
 }
 
-uint32_t kmalloc(uint32_t size){
+uint32_t kmalloc(uint32_t size, unsigned int flag){
+    if (flag == 0) {
+        flag = PAGE_PRESENT | PAGE_WRITE;
+    }
+
     if (size > 4096 || size == 0)
         return 0;
 
     if (heap_head == NULL) {
-        heap_head = current_block = (Block *)allocate_page();
+        heap_head = current_block = (Block *)allocate_page(flag);
         heap_head->size = 4096 - sizeof(Block);
         heap_head->type = 1;
         heap_head->next = NULL;
@@ -244,7 +261,7 @@ uint32_t kmalloc(uint32_t size){
         current_page = current_page->next;
     }
     if(best_block == NULL){
-        Block *new_page = (Block *) allocate_page();        
+        Block *new_page = (Block *) allocate_page(flag);        
         new_page->size = 4096 - sizeof(Block);
         new_page->type = 1;
         new_page->next = NULL;

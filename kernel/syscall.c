@@ -40,26 +40,7 @@ void sys_yield(registers_t *regs){
     process_t *next = schedule();
     number_switch++;
 
-    if (next != NULL && next != old) {
-        print_string("FROM ", &i, &j);
-        print_number(current_process->pid, &i);
-
-        print_string(" TO ", &i, &j);
-        print_number(next->pid, &i);
-
-        print_string(" EIP=", &i, &j);
-        print_hex(regs->eip, &i);
-
-        print_string(" CS=", &i, &j);
-        print_hex(regs->cs, &i);
-
-        print_string(" ESP=", &i, &j);
-        print_hex(regs->esp, &i);
-
-        print_string("\n", &i, &j);
-        print_string("number of switch: ", &i, &j);
-        print_number(number_switch, &i);
-        print_string("\n", &i, &j);
+    if (next != NULL && next != old) {       
         context_switch(regs, next);
     }
 }

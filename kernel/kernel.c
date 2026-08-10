@@ -231,7 +231,7 @@ void kernel(){
     clear_screen();
 
     if(choice == 1){
-        process_t *p1 = create_process(user_main, PROCESS_KERNEL);
+        process_t *p1 = create_process(user_main, PROCESS_USER);
         restore_esp(current_process);
     }
 

@@ -183,8 +183,6 @@ uint32_t allocate_page(unsigned int flag){
     }
     
     map_page(physical, virtual, flag);
-    print_string("process was allocated", &i, &j);
-    print_hex(virtual, &i);
     return virtual;
 }
 

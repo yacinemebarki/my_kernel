@@ -147,42 +147,8 @@ void save_context(registers_t *regs){
 }
 
 void context_switch(registers_t *reg, process_t *next){
-    save_context(reg);
-
-    if (current_process->pid == 1) {
-        print_string("PID1 SAVED: ", &i, &j);
-
-        print_string("regs=", &i, &j);
-        print_hex((uint32_t)current_process->regs, &i);
-
-        print_string(" EIP=", &i, &j);
-        print_hex(current_process->regs->eip, &i);
-
-        print_string(" CS=", &i, &j);
-        print_hex(current_process->regs->cs, &i);
-
-        print_string(" ESP=", &i, &j);
-        print_hex(current_process->regs->esp, &i);
-
-        print_string("\n", &i, &j);
-    }
-
+    save_context(reg);   
     current_process = next;
-
-    print_string("NEXT PID=", &i, &j);
-    print_number(next->pid, &i);
-
-    print_string(" regs=", &i, &j);
-    print_hex((uint32_t)next->regs, &i);
-
-    print_string(" EIP=", &i, &j);
-    print_hex(next->regs->eip, &i);
-
-    print_string(" CS=", &i, &j);
-    print_hex(next->regs->cs, &i);
-
-    print_string("\n", &i, &j);
-
     restore_esp(next);
 }
 

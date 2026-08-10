@@ -3,7 +3,7 @@ CC = gcc
 LD = ld
 
 ASFLAGS = -f elf32
-CFLAGS = -ffreestanding -m32 -nostdlib -c -fno-pic -fno-pie
+CFLAGS = -ffreestanding -m32 -nostdlib -c -fno-pic -fno-pie -Ikernel -Iuser
 LDFLAGS = -m elf_i386 -T link.ld
 
 KERNEL = kernel.elf
@@ -42,16 +42,16 @@ TSS_FLUSH_ASM = kernel/tss_flush.asm
 TSS_FLUSH_O = kernel/tss_flush.o 
 GDT_FLUSH_ASM = kernel/gdt_flush.asm 
 GDT_FLUSH_O = kernel/gdt_flush.o
-USER_SPACE_C = kernel/user_space.c 
-USER_SPACE_O = kernel/user_space.o 
+USER_SPACE_C = user/user_space.c 
+USER_SPACE_O = user/user_space.o 
 ENTER_USER_MODE_ISER = kernel/enter_user_mode.asm 
 ENTER_USER_MODE_ISER_O = kernel/enter_user_mode.o
 SYCALL_HANDELER_ISER = kernel/sycall_handeler.asm 
 SYCALL_HANDELER_ISER_O = kernel/sycall_handeler.o 
 SYSCALL_C = kernel/syscall.c
 SYSCALL_O = kernel/syscall.o
-USER_TEST_C = kernel/user_test.c 
-USER_TEST_O = kernel/user_test.o  
+USER_TEST_C = user/user_test.c 
+USER_TEST_O = user/user_test.o  
 
 BOOT_BIN = boot/boot.bin
 KERNEL_BIN = kernel.bin

@@ -67,6 +67,10 @@ process_t *sys_create_process(void (*entery)(void), int mode){
     return pro;
 }
 
+int sys_get_pid(){
+    return current_process->pid;
+}
+
 void syscall_dispatch(registers_t *regs){
     switch (regs->eax){
         case SYS_EXIT:
@@ -103,7 +107,9 @@ void syscall_dispatch(registers_t *regs){
             break;
         case SYS_CREATE_PROCESS:
             regs->eax = (uint32_t) sys_create_process((void (*)(void))regs->ebx, (int)regs->ecx);
-            break;      
+            break;   
+        case GET_PID:
+            regs->eax = sys_get_pid();
 
         default:
             break;

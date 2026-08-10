@@ -61,9 +61,15 @@ void user_sleep(int time){
     __asm__ volatile("int $0x080":: "a"(SYS_SLEEP), "b"(time));
 }
 
+int user_get_pid(){
+    int pid;
+    __asm__ volatile("int $0x080":"=a"(pid):);
+    return pid;
+}
+
 void user_main(){
     write_string("hello to your space");
-    process_t *p1 = user_create_process(parent_process, PROCESS_USER);
+    process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
     while(1){
         user_yield();
     }

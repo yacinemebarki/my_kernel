@@ -2,6 +2,7 @@
 #include "asm_operation.h"
 #include "syscall.h"
 #include "pit.h"
+#include "pmm.h"
 
 //vga variable
 extern int i;
@@ -71,6 +72,15 @@ int sys_get_pid(){
     return current_process->pid;
 }
 
+uint32_t sys_kmalloc(uint32_t size){
+    uint32_t pointer = kmalloc(size, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+    return pointer;
+}
+
+void sys_free(uint32_t address){
+    kfree(address);
+}
+
 void syscall_dispatch(registers_t *regs){
     switch (regs->eax){
         case SYS_EXIT:
@@ -110,7 +120,13 @@ void syscall_dispatch(registers_t *regs){
             break;   
         case GET_PID:
             regs->eax = sys_get_pid();
-
+        case SYS_MALLOC:
+            regs->eax = sys_kmalloc(regs->ebx);
+            break;
+        case SYS_FREE:
+            sys_free(regs->ebx);
+            break;
+                
         default:
             break;
     }

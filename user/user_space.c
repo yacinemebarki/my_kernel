@@ -67,8 +67,19 @@ int user_get_pid(){
     return pid;
 }
 
+uint32_t user_kmalloc(uint32_t size){
+    uint32_t pointer;
+    __asm__ volatile("int $0x080":"=a"(pointer) :"a"(SYS_MALLOC), "b"(size));
+    return pointer;
+}
+
+void user_free(uint32_t address){
+    __asm__ volatile("int $0x080":: "a"(SYS_FREE), "b"(address));
+}
+
 void user_main(){
     write_string("hello to your space");
+    user_malloc_free_test();
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
     while(1){
         user_yield();

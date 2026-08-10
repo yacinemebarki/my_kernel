@@ -14,6 +14,9 @@ void user_yield(void);
 void user_exit(int status);
 process_t *user_create_process(void (*entry)(void), int mode);
 void user_sleep(int time);
+uint32_t user_kmalloc(uint32_t size);
+void user_free(uint32_t address);
+void user_malloc_free_test(void);
 void user_main(void);
 
 #endif

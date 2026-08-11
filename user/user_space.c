@@ -63,7 +63,7 @@ void user_sleep(int time){
 
 int user_get_pid(){
     int pid;
-    __asm__ volatile("int $0x080":"=a"(pid):);
+    __asm__ volatile("int $0x080":"=a"(pid):"a"(GET_PID): "memory");
     return pid;
 }
 
@@ -79,9 +79,10 @@ void user_free(uint32_t address){
 
 void user_main(){
     write_string("hello to your space");
-    user_malloc_free_test();
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
     while(1){
+        write_string("PID = ");
+        write_number(user_get_pid());
         user_yield();
     }
 }

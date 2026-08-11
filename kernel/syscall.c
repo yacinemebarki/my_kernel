@@ -120,6 +120,7 @@ void syscall_dispatch(registers_t *regs){
             break;   
         case GET_PID:
             regs->eax = sys_get_pid();
+            break;
         case SYS_MALLOC:
             regs->eax = sys_kmalloc(regs->ebx);
             break;

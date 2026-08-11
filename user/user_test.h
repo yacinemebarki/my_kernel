@@ -3,5 +3,7 @@
 
 void child_process(void);
 void parent_process(void);
+void user_sleep_test(void);
+void user_exit_test(void);
 
 #endif

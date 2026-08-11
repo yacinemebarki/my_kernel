@@ -36,3 +36,41 @@ void parent_process(void){
         user_yield();
     }
 }
+
+void user_exit_test(void){
+    write_string("USER EXIT TEST\n");
+
+    write_string("Process is running...\n");
+    user_yield();
+
+    write_string("Process is exiting now...\n");
+    user_exit(0);
+
+    write_string("ERROR: process continued after exit!\n");
+}
+
+void user_sleep_test(void){
+    write_string("USER SLEEP TEST\n");
+
+    write_string("Before sleep\n");
+
+    uint32_t start = user_get_second();
+    write_string("\nthe start is= ");
+    write_number(start);
+    write_string("\n");
+
+    write_string("Sleeping for 3 seconds...\n");
+
+    user_sleep(300);
+
+    uint32_t end = user_get_second();
+
+    write_string("After sleep\n");
+
+    write_string("Elapsed time = ");
+    write_number(end - start);
+    write_string(" seconds\n");
+
+    user_exit(0);
+}
+

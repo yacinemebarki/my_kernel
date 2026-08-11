@@ -38,6 +38,7 @@ int number_switch = 0;
 
 void sys_yield(registers_t *regs){
     process_t *old = current_process;
+    wake_processes();
     process_t *next = schedule();
     number_switch++;
 
@@ -54,12 +55,15 @@ void sys_print_seconds(unsigned long seconds){
     print_number(seconds, &pos);
 }
 
-extern unsigned long ticks;
-void sys_sleep(unsigned long time){
-    unsigned long start = ticks;
-    sti();
-    while (ticks < start + time) {
-        hlt();
+extern int ticks;
+void sys_sleep(registers_t *regs, unsigned long time){
+    current_process->wake = ticks + time;
+    current_process->state = PROCESS_BLOCKED;
+
+    process_t *next = schedule();
+
+    if (next != NULL && next != current_process) {
+        context_switch(regs, next);
     }
 }
 
@@ -113,7 +117,7 @@ void syscall_dispatch(registers_t *regs){
             sys_print_seconds((unsigned long)regs->ebx);
             break;   
         case SYS_SLEEP:
-            sys_sleep((unsigned long)regs->ebx);
+            sys_sleep(regs, (unsigned long)regs->ebx);
             break;
         case SYS_CREATE_PROCESS:
             regs->eax = (uint32_t) sys_create_process((void (*)(void))regs->ebx, (int)regs->ecx);

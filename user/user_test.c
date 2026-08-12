@@ -74,3 +74,19 @@ void user_sleep_test(void){
     user_exit(0);
 }
 
+void user_test_wait(void){
+    int status;
+
+    int pid = user_wait(&status);
+    write_string("\n");
+
+    write_string("wait returned PID: ");
+    write_number(pid);
+
+    write_string("\n");
+
+    write_string("exit status: ");
+    write_number(status);
+    write_string("\n");
+}
+

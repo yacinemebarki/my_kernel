@@ -18,5 +18,6 @@ uint32_t user_kmalloc(uint32_t size);
 void user_free(uint32_t address);
 void user_malloc_free_test(void);
 void user_main(void);
+int user_wait(int *status);
 
 #endif

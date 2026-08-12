@@ -77,11 +77,16 @@ void user_free(uint32_t address){
     __asm__ volatile("int $0x080":: "a"(SYS_FREE), "b"(address));
 }
 
+int user_wait(int *status){
+    int pid;
+    __asm__ volatile("int $0x080":"=a"(pid): "a"(SYS_WAIT), "b"(status));
+    return pid;
+}
+
 void user_main(){
     write_string("hello to your space");
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
-    process_t *p2 = user_create_process(user_sleep_test, PROCESS_USER);
-    process_t *p3 = user_create_process(user_exit_test, PROCESS_USER);
+    process_t *p2 = user_create_process(user_test_wait, PROCESS_USER);
     while(1){     
         user_yield();
     }

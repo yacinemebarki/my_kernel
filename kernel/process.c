@@ -194,8 +194,11 @@ void exit_process(){
     }
 
     
-    current_process->state = PROCESS_TERMINATED;
-    remove_process_list(current_process);
+    current_process->state = PROCESS_ZOMBIE;
+
+    if (current_process->parent != NULL) {
+        current_process->parent->state = PROCESS_READY;
+    }
 
     current_process = next;
     restore_esp(next);

@@ -17,7 +17,8 @@ typedef enum{
     PROCESS_READY,
     PROCESS_RUNNING,
     PROCESS_BLOCKED,
-    PROCESS_TERMINATED
+    PROCESS_TERMINATED,
+    PROCESS_ZOMBIE
 } process_state_t;
 
 typedef struct registers{
@@ -54,6 +55,7 @@ typedef struct process{
     int exit_code;
     void (*entry)(void);
     int wake;
+    struct process *parent;
     struct process *next;
 } process_t;
 

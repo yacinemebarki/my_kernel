@@ -15,6 +15,7 @@
 #define GET_PID 10
 #define SYS_MALLOC 11
 #define SYS_FREE 12
+#define SYS_WAIT 13
 
 void sys_yield(registers_t *regs);
 void sys_exit(int status);

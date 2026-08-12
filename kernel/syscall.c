@@ -85,30 +85,28 @@ void sys_free(uint32_t address){
     kfree(address);
 }
 
-int sys_wait(int *status){
+int sys_wait(int *status, registers_t *regs){
     process_t *p = process_list;
 
     while(p != NULL){
         if(p->parent == current_process){
+
             if(p->state == PROCESS_ZOMBIE){
                 *status = p->exit_code;
-                print_string("\n the pid is", &i, &j);
-                print_number(p->pid, &i);
-                print_string("\n", &i, &j);
                 return p->pid;
             }
         }
         p = p->next;
     }
+
     current_process->state = PROCESS_BLOCKED;
     process_t *next = schedule();
     if (next == NULL || next == current_process) {
         print_string("PANIC: no runnable process\n", &i, &j);
         __asm__ volatile("cli; hlt");
     }
-    current_process = next;
-    restore_esp(current_process);
-    return -1;
+
+    context_switch(regs, next);
 }
 
 void syscall_dispatch(registers_t *regs){
@@ -158,7 +156,9 @@ void syscall_dispatch(registers_t *regs){
             sys_free(regs->ebx);
             break;
         case SYS_WAIT:
-            regs->eax = sys_wait((int *)regs->ebx);
+            regs->eax = sys_wait((int *)regs->ebx, regs);
+            print_string("the sys_wait result= ", &i, &j);
+            print_number((int)regs->eax, &i);
             break;
 
         default:

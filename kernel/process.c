@@ -186,18 +186,16 @@ void wake_processes(void){
 
 void exit_process(){
     process_t *dead = current_process;
-    process_t *next = schedule();
+    dead->state = PROCESS_ZOMBIE;
 
-    if (next == NULL || next == dead) {        
+    process_t *next = schedule();
+    if (next == NULL || next == dead) {
         print_string("PANIC: no ready process after exit\n", &i, &j);
         __asm__ volatile("cli; hlt");
     }
 
-    
-    current_process->state = PROCESS_ZOMBIE;
-
-    if (current_process->parent != NULL) {
-        current_process->parent->state = PROCESS_READY;
+    if (dead->parent != NULL) {
+        dead->parent->state = PROCESS_READY;
     }
 
     current_process = next;

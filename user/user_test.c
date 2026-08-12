@@ -74,19 +74,24 @@ void user_sleep_test(void){
     user_exit(0);
 }
 
+void user_child(void){
+    write_string("CHILD RUNNING\n");
+    user_exit(42);
+}
+
 void user_test_wait(void){
+    write_string("USER wait TEST\n");
+
+    user_create_process(user_child, PROCESS_USER);
+
     int status;
 
     int pid = user_wait(&status);
-    write_string("\n");
 
-    write_string("wait returned PID: ");
+    write_string("\nwait returned PID: ");
     write_number(pid);
 
-    write_string("\n");
-
-    write_string("exit status: ");
+    write_string("\nexit status: ");
     write_number(status);
-    write_string("\n");
 }
 

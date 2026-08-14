@@ -55,8 +55,8 @@ typedef struct process{
     int exit_code;
     void (*entry)(void);
     int wake;
-    struct process *parent;
     struct process *next;
+    struct process *parent;
 } process_t;
 
 extern process_t *process_list;
@@ -76,5 +76,6 @@ void process_test();
 void exit_process();
 void process_entry();
 void wake_processes(void);
+int is_valid_process_ptr(process_t *pro);
 
 #endif

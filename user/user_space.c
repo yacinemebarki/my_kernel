@@ -63,8 +63,14 @@ void user_sleep(int time){
 
 int user_get_pid(){
     int pid;
-    __asm__ volatile("int $0x080":"=a"(pid):"a"(GET_PID): "memory");
+    __asm__ volatile("int $0x080":"=a"(pid):"a"(SYS_GET_PID): "memory");
     return pid;
+}
+
+int user_get_parent_pid(process_t *pro){
+    int ppid;
+    __asm__ volatile("int $0x080":"=a"(ppid) :"a"(SYS_GET_PARENT_PID), "b"(pro));
+    return ppid;
 }
 
 uint32_t user_kmalloc(uint32_t size){

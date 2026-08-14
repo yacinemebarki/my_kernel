@@ -12,10 +12,11 @@
 #define SYS_SECONDS 7
 #define SYS_PRINT_SECONDS 8
 #define SYS_CREATE_PROCESS 9
-#define GET_PID 10
+#define SYS_GET_PID 10
 #define SYS_MALLOC 11
 #define SYS_FREE 12
 #define SYS_WAIT 13
+#define SYS_GET_PARENT_PID 14
 
 void sys_yield(registers_t *regs);
 void sys_exit(int status);

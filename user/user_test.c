@@ -82,7 +82,11 @@ void user_child(void){
 void user_test_wait(void){
     write_string("USER wait TEST\n");
 
-    user_create_process(user_child, PROCESS_USER);
+    process_t *p = user_create_process(user_child, PROCESS_USER);
+    int ppid = user_get_parent_pid(p);
+    write_string("pid of parent of child process= ");
+    write_number(ppid);
+    write_string("\n");
 
     int status;
 

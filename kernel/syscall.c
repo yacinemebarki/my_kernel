@@ -69,11 +69,24 @@ void sys_sleep(registers_t *regs, unsigned long time){
 
 process_t *sys_create_process(void (*entery)(void), int mode){
     process_t *pro = create_process(entery, mode);
+    int valid = is_valid_process_ptr(pro);
+    if(valid == 0){
+        print_string("unvalid process", &i, &j);
+        return NULL;
+    }
     return pro;
 }
 
 int sys_get_pid(){
     return current_process->pid;
+}
+
+int sys_get_parent_pid(process_t *pro){
+    if (!is_valid_process_ptr(pro))
+        return -1;
+    if (pro->parent == NULL)
+        return -1;
+    return pro->parent->pid;
 }
 
 uint32_t sys_kmalloc(uint32_t size){
@@ -93,6 +106,8 @@ int sys_wait(int *status, registers_t *regs){
 
             if(p->state == PROCESS_ZOMBIE){
                 *status = p->exit_code;
+                print_string("the pid", &i, &j);
+                print_number(p->pid, &i);
                 return p->pid;
             }
         }
@@ -107,6 +122,7 @@ int sys_wait(int *status, registers_t *regs){
     }
 
     context_switch(regs, next);
+    return -1;
 }
 
 void syscall_dispatch(registers_t *regs){
@@ -146,7 +162,7 @@ void syscall_dispatch(registers_t *regs){
         case SYS_CREATE_PROCESS:
             regs->eax = (uint32_t) sys_create_process((void (*)(void))regs->ebx, (int)regs->ecx);
             break;   
-        case GET_PID:
+        case SYS_GET_PID:
             regs->eax = sys_get_pid();
             break;
         case SYS_MALLOC:
@@ -159,6 +175,9 @@ void syscall_dispatch(registers_t *regs){
             regs->eax = sys_wait((int *)regs->ebx, regs);
             print_string("the sys_wait result= ", &i, &j);
             print_number((int)regs->eax, &i);
+            break;
+        case SYS_GET_PARENT_PID:
+            regs->eax = sys_get_parent_pid((process_t *)regs->ebx);
             break;
 
         default:

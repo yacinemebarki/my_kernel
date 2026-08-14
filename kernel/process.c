@@ -84,7 +84,14 @@ process_t *create_process(void (*entry)(void), int mode){
         regs->user_ss = USER_DS;
     }
 
+    pro->parent = current_process;
+    
     add_process(pro);
+    print_string("create: current_process=", &i, &j);
+    print_hex((uint32_t)current_process, &i);
+    print_string(" child->parent set to=", &i, &j);
+    print_hex((uint32_t)pro->parent, &i);
+    print_string("\n", &i, &j);
 
     return pro;
 }
@@ -206,4 +213,13 @@ void exit_process(){
 void process_entry(){
     current_process->entry();   
     exit_process();             
+}
+
+int is_valid_process_ptr(process_t *pro){
+    process_t *p = process_list;
+    while (p != NULL){
+        if (p == pro) return 1;
+        p = p->next;
+    }
+    return 0;
 }

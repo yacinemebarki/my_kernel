@@ -19,5 +19,6 @@ void user_free(uint32_t address);
 void user_malloc_free_test(void);
 void user_main(void);
 int user_wait(int *status);
+int user_get_parent_pid(process_t *pro);
 
 #endif

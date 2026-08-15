@@ -29,8 +29,20 @@ void sys_printhex(uint32_t n){
 
 
 void sys_exit(int status){
+    print_string("\n===== SYS_EXIT =====\n", &i, &j);
+
+    print_string("current PID = ", &i, &j);
+    print_number(current_process->pid, &i);
+
+    print_string("\nstatus = ", &i, &j);
+    print_number(status, &i);
+
+    print_string("\n", &i, &j);
+
     current_process->exit_code = status;
+
     exit_process();
+
     while (1);
 }
 
@@ -102,12 +114,10 @@ int sys_wait(int *status, registers_t *regs){
     process_t *p = process_list;
 
     while(p != NULL){
-        if(p->parent == current_process){
+        if (p->parent->pid == current_process->pid) {
 
-            if(p->state == PROCESS_ZOMBIE){
+            if (p->state == PROCESS_ZOMBIE) {
                 *status = p->exit_code;
-                print_string("the pid", &i, &j);
-                print_number(p->pid, &i);
                 return p->pid;
             }
         }
@@ -115,6 +125,7 @@ int sys_wait(int *status, registers_t *regs){
     }
 
     current_process->state = PROCESS_BLOCKED;
+    regs->eax = -1;
     process_t *next = schedule();
     if (next == NULL || next == current_process) {
         print_string("PANIC: no runnable process\n", &i, &j);

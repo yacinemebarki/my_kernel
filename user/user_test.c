@@ -97,5 +97,6 @@ void user_test_wait(void){
 
     write_string("\nexit status: ");
     write_number(status);
+    user_exit(0);
 }
 

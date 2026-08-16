@@ -29,16 +29,6 @@ void sys_printhex(uint32_t n){
 
 
 void sys_exit(int status){
-    print_string("\n===== SYS_EXIT =====\n", &i, &j);
-
-    print_string("current PID = ", &i, &j);
-    print_number(current_process->pid, &i);
-
-    print_string("\nstatus = ", &i, &j);
-    print_number(status, &i);
-
-    print_string("\n", &i, &j);
-
     current_process->exit_code = status;
 
     exit_process();

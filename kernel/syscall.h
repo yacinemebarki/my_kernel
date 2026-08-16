@@ -17,6 +17,7 @@
 #define SYS_FREE 12
 #define SYS_WAIT 13
 #define SYS_GET_PARENT_PID 14
+#define SYS_FORK 15
 
 void sys_yield(registers_t *regs);
 void sys_exit(int status);

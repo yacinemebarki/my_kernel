@@ -87,11 +87,6 @@ process_t *create_process(void (*entry)(void), int mode){
     pro->parent = current_process;
     
     add_process(pro);
-    print_string("create: current_process=", &i, &j);
-    print_hex((uint32_t)current_process, &i);
-    print_string(" child->parent set to=", &i, &j);
-    print_hex((uint32_t)pro->parent, &i);
-    print_string("\n", &i, &j);
 
     return pro;
 }

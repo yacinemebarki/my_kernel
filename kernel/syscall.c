@@ -126,6 +126,20 @@ int sys_wait(int *status, registers_t *regs){
     return -1;
 }
 
+int sys_fork(registers_t *regs){
+    process_t *parent = current_process;
+    process_t *child = create_process(NULL, PROCESS_USER); 
+    
+    child->regs = regs;
+    child->regs->eax = 0;
+    
+    regs->eax = child->pid;
+    child->parent = parent;
+
+    child->state = PROCESS_READY;
+    return child->pid;
+}
+
 void syscall_dispatch(registers_t *regs){
     switch (regs->eax){
         case SYS_EXIT:
@@ -179,6 +193,9 @@ void syscall_dispatch(registers_t *regs){
             break;
         case SYS_GET_PARENT_PID:
             regs->eax = sys_get_parent_pid((process_t *)regs->ebx);
+            break;
+        case SYS_FORK:
+            regs->eax = sys_fork(regs);
             break;
 
         default:

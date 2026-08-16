@@ -100,3 +100,17 @@ void user_test_wait(void){
     user_exit(0);
 }
 
+void fork_test(void){
+    int pid = fork();
+
+    if (pid == 0) {
+        print_string("CHILD: fork returned 0\n");
+    } 
+    else if (pid > 0) {
+        print_string("PARENT: fork returned child PID\n");
+    } 
+    else {
+        print_string("FORK FAILED\n");
+    }
+}
+

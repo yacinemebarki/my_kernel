@@ -57,6 +57,7 @@ typedef struct process{
     int wake;
     struct process *next;
     struct process *parent;
+    uint32_t user_stack;
 } process_t;
 
 extern process_t *process_list;

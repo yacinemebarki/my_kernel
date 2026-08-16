@@ -129,14 +129,45 @@ int sys_wait(int *status, registers_t *regs){
 int sys_fork(registers_t *regs){
     process_t *parent = current_process;
     process_t *child = create_process(NULL, PROCESS_USER); 
+
+    if (child == NULL) {
+        regs->eax = (uint32_t)-1;
+        return -1;
+    }
+
+    uint32_t child_user_esp = child->regs->user_esp;
     
-    child->regs = regs;
+    *child->regs = *regs;
     child->regs->eax = 0;
+
+    child->regs->user_esp = child_user_esp;
+
+    uint32_t parent_stack_top = parent->user_stack + 4096;
+    uint32_t child_stack_top  = child->user_stack  + 4096;
+    uint32_t used = parent_stack_top - regs->user_esp;
+    memcpy((void *)(child_stack_top - used), (void *)(parent_stack_top - used), used);
     
+    child->regs->user_esp = child_stack_top - used;
     regs->eax = child->pid;
     child->parent = parent;
 
     child->state = PROCESS_READY;
+    print_string("PARENT EIP = ", &i, &j);
+    print_hex(regs->eip, &i);
+
+    print_string("\nCHILD EIP = ", &i, &j);
+    print_hex(child->regs->eip, &i);
+
+    print_string("\nPARENT USER ESP = ", &i, &j);
+    print_hex(regs->user_esp, &i);
+
+    print_string("\nCHILD USER ESP = ", &i, &j);
+    print_hex(child->regs->user_esp, &i);
+
+    print_string("\nCHILD EAX = ", &i, &j);
+    print_hex(child->regs->eax, &i);
+
+    print_string("\n", &i, &j);
     return child->pid;
 }
 

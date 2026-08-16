@@ -130,6 +130,13 @@ void irq0_handler(registers_t *regs){
 void fault_handler(uint32_t vector){
     print_string("FAULT: vector ", &i, &j);
     print_hex(vector, &i);
+    uint32_t cr2;
+
+    __asm__ volatile ("mov %%cr2, %0": "=r" (cr2));
+
+    print_string("PAGE FAULT CR2 = ", &i, &j);
+    print_hex(cr2, &i);
+    print_string("\n", &i, &j);
     __asm__ volatile("cli; hlt");
 }
 

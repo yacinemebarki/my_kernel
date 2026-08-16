@@ -101,16 +101,16 @@ void user_test_wait(void){
 }
 
 void fork_test(void){
-    int pid = fork();
+    int pid = user_fork();
 
     if (pid == 0) {
-        print_string("CHILD: fork returned 0\n");
+        write_string("CHILD: fork returned 0\n");
     } 
     else if (pid > 0) {
-        print_string("PARENT: fork returned child PID\n");
+        write_string("PARENT: fork returned child PID\n");
     } 
     else {
-        print_string("FORK FAILED\n");
+        write_string("FORK FAILED\n");
     }
 }
 

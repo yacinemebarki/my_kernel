@@ -44,5 +44,6 @@ uint32_t kmalloc(uint32_t size, unsigned int flag);
 void kfree(uint32_t addr);
 void inspect();
 void memset(void *ptr, int value, uint32_t size);
+void *memcpy(void *dest, void *src, uint32_t n);
 
 #endif

@@ -52,6 +52,7 @@ void init_tss(void);
 extern tss_t tss;
 extern struct  gdt_entry gdt[6];
 extern struct gdt_ptr gp;
+void set_kernel_stack(uint32_t stack);
 
 #endif
 

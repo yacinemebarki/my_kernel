@@ -93,13 +93,17 @@ int user_wait(int *status){
 
 int user_fork(){
     int pid;
-    __asm__ volatile("$int 0x080": "=a"(pid): "a"(SYS_FORK));
+    __asm__ volatile("int $0x080": "=a"(pid): "a"(SYS_FORK));
+    write_string("the pid returned= ");
+    write_number(pid);
+    write_string("\n");
     return pid;
 }
 
 void user_main(){
     write_string("hello to your space");
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
+    process_t *p2 = user_create_process(fork_test, PROCESS_USER);
     while(1){     
         user_yield();
     }

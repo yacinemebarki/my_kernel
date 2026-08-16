@@ -44,6 +44,7 @@ process_t *create_process(void (*entry)(void), int mode){
             kfree((uint32_t)pro);
             return NULL;
         }
+        pro->user_stack = user_stack;
     }
 
     registers_t *regs = (registers_t *)(kernel_stack + 4096 - sizeof(registers_t));

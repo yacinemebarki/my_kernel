@@ -112,5 +112,9 @@ void fork_test(void){
     else {
         write_string("FORK FAILED\n");
     }
+    while(1){
+        user_yield();
+    }    
 }
+
 

@@ -144,15 +144,36 @@ int sys_fork(registers_t *regs){
 
     uint32_t parent_stack_top = parent->user_stack + 4096;
     uint32_t child_stack_top  = child->user_stack  + 4096;
+    uint32_t  delta = (uint32_t)(child_stack_top - parent_stack_top);
+
+
     uint32_t used = parent_stack_top - regs->user_esp;
-    memcpy((void *)(child_stack_top - used), (void *)(parent_stack_top - used), used);
+
+    memcpy(
+        (void *)(child_stack_top - used),
+        (void *)(parent_stack_top - used),
+        used
+    );
     
     child->regs->user_esp = child_stack_top - used;
+    child->regs->ebp = regs->ebp + delta;
+
+    uint32_t *frame = (uint32_t *)child->regs->ebp;
+    while((uint32_t)frame >= (child_stack_top - used) && (uint32_t)frame < (child_stack_top - 4)){
+        uint32_t saved_ebp = frame[0];
+        if(saved_ebp >= (parent_stack_top - 4096) && saved_ebp < parent_stack_top){
+            frame[0] = saved_ebp + delta;
+            frame = (uint32_t *) frame[0];
+        }else {
+            break;
+        }
+    }
+
     regs->eax = child->pid;
     child->parent = parent;
 
     child->state = PROCESS_READY;
-    print_string("PARENT EIP = ", &i, &j);
+    print_string("\nPARENT EIP = ", &i, &j);
     print_hex(regs->eip, &i);
 
     print_string("\nCHILD EIP = ", &i, &j);
@@ -164,10 +185,17 @@ int sys_fork(registers_t *regs){
     print_string("\nCHILD USER ESP = ", &i, &j);
     print_hex(child->regs->user_esp, &i);
 
+    print_string("\nPARENT KERNEL ESP = ", &i, &j);
+    print_hex(regs->esp, &i);
+
+    print_string("\nCHILD KERNEL ESP = ", &i, &j);
+    print_hex(child->regs->esp, &i);
+
     print_string("\nCHILD EAX = ", &i, &j);
     print_hex(child->regs->eax, &i);
 
-    print_string("\n", &i, &j);
+    print_string("\n================================\n", &i, &j);
+
     return child->pid;
 }
 
@@ -219,8 +247,6 @@ void syscall_dispatch(registers_t *regs){
             break;
         case SYS_WAIT:
             regs->eax = sys_wait((int *)regs->ebx, regs);
-            print_string("the sys_wait result= ", &i, &j);
-            print_number((int)regs->eax, &i);
             break;
         case SYS_GET_PARENT_PID:
             regs->eax = sys_get_parent_pid((process_t *)regs->ebx);

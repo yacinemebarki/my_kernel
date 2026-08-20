@@ -2,6 +2,12 @@
 #define ELF_H
 
 #include "types.h"
+#include "pmm.h"
+
+#define ELFCLASS32 1
+#define ELFCLASS64 2
+#define EM_386 3
+#define EV_current 3
 
 enum Elf_Type {
 	ET_NONE,
@@ -9,14 +15,15 @@ enum Elf_Type {
 	ET_EXEC
 };
 
-#define ELFCLASS32 1
-#define ELFCLASS64 2
-#define EM_386 3
-#define EV_current 3
-
-enum Elfp_Type {
-    
-};
+typedef enum {
+    PT_NULL,
+    PT_LOAD,
+    PT_DYNAMIC,
+    PT_INTERP,
+    PT_NOTE,
+    PT_SHLIB,   
+    PT_PHDR  
+} Elfp_Type;
 
 typedef struct{
     uint8_t e_ident[16];

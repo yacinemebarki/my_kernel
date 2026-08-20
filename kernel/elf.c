@@ -48,7 +48,7 @@ void load_segment(Elf32_Phder *ph, void *file){
     for(uint32_t vaddr = segment_start; vaddr < segment_end; vaddr+=4096){
         uint32_t ver = allocate_page(PAGE_PRESENT | PAGE_WRITE | PAGE_USER);  
         if(ver == 0){
-            return NULL;
+            return;
         } 
     }
 
@@ -61,16 +61,17 @@ void load_segment(Elf32_Phder *ph, void *file){
 }
 
 void *elf_load_exec(Elf32_Ehdr *hdr, void *file){
-    Elf32_Phder *phdr = (Elf32_Ehdr *)((uint8_t *) hdr + hdr->e_phoff);
+    Elf32_Phder *phdr = (Elf32_Phder *)((uint8_t *) hdr + hdr->e_phoff);
 
     for(uint16_t i = 0; i < hdr->e_phnum; i++){
         Elf32_Phder *ph = (Elf32_Phder *)((uint8_t *)phdr + i * hdr->e_phsize);
 
-        if(ph->p_type == PT_LOAD){
+        if(ph->p_type != PT_LOAD){
             continue;
         }
         load_segment(ph, file);
     }
+    return (void *)hdr->e_entry;
 }
 
 void *elf_load_rel(Elf32_Ehdr *hdr){

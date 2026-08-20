@@ -9,11 +9,11 @@
 #define EM_386 3
 #define EV_current 3
 
-enum Elf_Type {
+typedef enum {
 	ET_NONE,
 	ET_REL,		
 	ET_EXEC
-};
+}Elf_Type;
 
 typedef enum {
     PT_NULL,
@@ -53,6 +53,7 @@ typedef struct{
     uint32_t p_flags;
     uint32_t p_align;    
 } Elf32_Phder;
+void *elf_load_file(void *file);
 
 
 #endif

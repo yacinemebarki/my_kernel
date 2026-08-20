@@ -11,6 +11,7 @@
 #include "tss.h"
 #include "user_space.h"
 #include "syscall.h"
+#include "elf.h"
 
 
 //define
@@ -30,6 +31,8 @@ extern void isr13();
 extern void isr14();
 extern void enter_user_mode(uint32_t user_main, uint32_t user_stack_top);
 extern void syscall_handler();
+extern unsigned char _binary_user_elf_test_elf_start[];
+extern unsigned char _binary_user_elf_test_elf_end[];
 
 //idt attribute table and pointer
 struct idt_pointer ptr;
@@ -231,6 +234,21 @@ void kernel(){
     load_idt(&ptr);
     sti();
     pit_init(11931);
+
+    void *file = _binary_user_elf_test_elf_start;
+
+    print_string("Testing ELF...\n", &i, &j);
+
+    void *entry = elf_load_file(file);
+
+    print_string("ELF loader returned\n", &i, &j);
+
+    if (entry != NULL) {
+        print_string("ELF loaded successfully\n", &i, &j);
+        print_hex((uint32_t)entry, &i);
+    } else {
+        print_string("ELF loading FAILED\n", &i, &j);
+    }
 
 
     int choice = switch_mode();

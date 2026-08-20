@@ -238,6 +238,7 @@ void kernel(){
     void *file = _binary_user_elf_test_elf_start;
 
     print_string("Testing ELF...\n", &i, &j);
+    print_hex((uint32_t )file, &i);
 
     void *entry = elf_load_file(file);
 
@@ -250,7 +251,7 @@ void kernel(){
         print_string("ELF loading FAILED\n", &i, &j);
     }
 
-
+    
     int choice = switch_mode();
 
     clear_screen();

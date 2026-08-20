@@ -6,15 +6,19 @@ int check_elf_file(Elf32_Ehdr *hdr){
     }
 
     if(hdr->e_ident[0] != 0x7F){
+        print_string("index 0 error \n", &i, &j);
         return 0;
     }
     if(hdr->e_ident[1] != 'E'){
+        print_string("index 1 error \n", &i, &j);
         return 0;
     }
     if(hdr->e_ident[2] != 'L'){
+        print_string("index 2 error \n", &i, &j);
         return 0;
     }
     if(hdr->e_ident[3] != 'F'){
+        print_string("index 3 error \n", &i, &j);
         return 0;
     }
 
@@ -26,45 +30,50 @@ int check_elf_supported(Elf32_Ehdr *hdr){
         return 0;
     }
     if(hdr->e_ident[4] != ELFCLASS32){
+        print_string("index 4 error \n", &i, &j);
         return 0;
     }
     if(hdr->e_machine != EM_386){
+        print_string("machine error \n", &i, &j);
         return 0;
     }
-    if(hdr->e_ident[6] != EV_current){
+    if(hdr->e_ident[6] != EV_CURRENT){
+        print_string("index 6 error \n", &i, &j);
         return 0;
     }
     if(hdr->e_type != ET_REL && hdr->e_type != ET_EXEC){
+        print_string("not existing type \n", &i, &j);
         return 0;
     }
-
+    print_string("succesed check \n", &i, &j);
     return 1;
 }
 
-void load_segment(Elf32_Phder *ph, void *file){
+void load_segment(Elf32_Phdr *ph, void *file){
     uint32_t segment_start = ph->p_vaddr & 0xFFFFF000;
     uint32_t segment_end = (ph->p_vaddr + ph->p_memsz + 0xFFF) & 0xFFFFF000;
 
     for(uint32_t vaddr = segment_start; vaddr < segment_end; vaddr+=4096){
-        uint32_t ver = allocate_page(PAGE_PRESENT | PAGE_WRITE | PAGE_USER);  
-        if(ver == 0){
+        uint32_t phy = allocate(4096);
+        if(phy == 0){
             return;
         } 
+        map_page(phy, vaddr, PAGE_PRESENT | PAGE_USER | PAGE_WRITE);
     }
 
     uint8_t *src = (uint8_t *)file + ph->p_offset;
-    memcpy((void *)ph->p_vaddr, src, ph->p_file_sz);
+    memcpy((void *)ph->p_vaddr, src, ph->p_filesz);
 
-    if (ph->p_memsz > ph->p_file_sz) {
-        memset((uint8_t *)ph->p_vaddr + ph->p_file_sz, 0, ph->p_memsz - ph->p_file_sz);
+    if (ph->p_memsz > ph->p_filesz) {
+        memset((uint8_t *)ph->p_vaddr + ph->p_filesz, 0, ph->p_memsz - ph->p_filesz);
     }
 }
 
 void *elf_load_exec(Elf32_Ehdr *hdr, void *file){
-    Elf32_Phder *phdr = (Elf32_Phder *)((uint8_t *) hdr + hdr->e_phoff);
+    Elf32_Phdr *phdr = (Elf32_Phdr *)((uint8_t *) hdr + hdr->e_phoff);
 
     for(uint16_t i = 0; i < hdr->e_phnum; i++){
-        Elf32_Phder *ph = (Elf32_Phder *)((uint8_t *)phdr + i * hdr->e_phsize);
+        Elf32_Phdr *ph = (Elf32_Phdr *)((uint8_t *)phdr + i * hdr->e_phsize);
 
         if(ph->p_type != PT_LOAD){
             continue;

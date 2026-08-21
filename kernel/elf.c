@@ -102,3 +102,27 @@ void *elf_load_file(void *file){
     }
 
 }
+
+process_t *create_elf_process(void *file){
+    process_t *p = create_process(NULL, PROCESS_USER);
+    if(p == NULL){
+        print_string("process creation faild", &i, &j);
+        return NULL;
+    }
+    uint32_t *entry = (uint32_t *) elf_load_file(file);
+
+    if (entry != NULL) {
+        print_string("ELF loaded successfully\n", &i, &j);
+        print_hex((uint32_t)entry, &i);
+    } else {
+        print_string("ELF loading FAILED\n", &i, &j);
+    }
+
+    p->regs->eip = (uint32_t )entry;
+
+    uint32_t phy = allocate(4096);
+
+    map_page(phy, USER_STACK_TOP - 4096, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+    p->regs->user_esp = USER_STACK_TOP;
+    return p;
+}

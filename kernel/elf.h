@@ -4,6 +4,7 @@
 #include "types.h"
 #include "pmm.h"
 #include "vga.h"
+#include "process.h"
 
 #define ELFCLASS32 1
 #define ELFCLASS64 2
@@ -59,5 +60,6 @@ typedef struct {
 
 
 void *elf_load_file(void *file);
+process_t *create_elf_process(void *file);
 
 #endif

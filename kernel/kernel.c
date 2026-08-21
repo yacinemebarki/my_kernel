@@ -18,7 +18,6 @@
 #define TIME_POS 160
 #define up_pos 0
 #define start_pos 240
-#define USER_STACK_TOP 0x80000
 
 
 //avoid ide error
@@ -237,18 +236,18 @@ void kernel(){
 
     void *file = _binary_user_elf_test_elf_start;
 
-    print_string("Testing ELF...\n", &i, &j);
+    print_string("Testing ELF process creation...\n", &i, &j);
     print_hex((uint32_t )file, &i);
 
-    void *entry = elf_load_file(file);
+    process_t *p = create_elf_process(file);
 
     print_string("ELF loader returned\n", &i, &j);
 
-    if (entry != NULL) {
-        print_string("ELF loaded successfully\n", &i, &j);
-        print_hex((uint32_t)entry, &i);
+    if (p != NULL) {
+        print_string("ELF process loaded successfully\n", &i, &j);
+        print_hex((uint32_t)p, &i);
     } else {
-        print_string("ELF loading FAILED\n", &i, &j);
+        print_string("ELF process loading FAILED\n", &i, &j);
     }
 
     

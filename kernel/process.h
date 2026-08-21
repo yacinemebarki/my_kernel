@@ -6,6 +6,7 @@
 #define KERNEL_DS 0x10
 #define USER_CS 0x1B
 #define USER_DS 0x23
+#define USER_STACK_TOP 0xBFFFF000
 
 #define PROCESS_KERNEL 0
 #define PROCESS_USER 1

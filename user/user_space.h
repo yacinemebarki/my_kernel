@@ -1,7 +1,7 @@
 #ifndef USER_SPACE_H
 #define USER_SPACE_H
 
-#include "process.h"
+#include "../kernel/process.h"
 
 void write_string(char *str);
 void write_char(char c);

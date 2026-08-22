@@ -1,5 +1,5 @@
-#include "syscall.h"
-#include "asm_operation.h"
+#include "../kernel/syscall.h"
+#include "../kernel/asm_operation.h"
 #include "user_test.h"
 #include "user_space.h"
 

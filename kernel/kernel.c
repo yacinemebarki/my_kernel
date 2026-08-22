@@ -129,16 +129,27 @@ void irq0_handler(registers_t *regs){
    
 }
 
-void fault_handler(uint32_t vector){
+void fault_handler(uint32_t vector, uint32_t error_code, uint32_t eip){
     print_string("FAULT: vector ", &i, &j);
     print_hex(vector, &i);
-    uint32_t cr2;
-
-    __asm__ volatile ("mov %%cr2, %0": "=r" (cr2));
-
-    print_string("PAGE FAULT CR2 = ", &i, &j);
-    print_hex(cr2, &i);
     print_string("\n", &i, &j);
+
+    print_string("error_code = ", &i, &j);
+    print_hex(error_code, &i);
+    print_string("\n", &i, &j);
+
+    print_string("eip = ", &i, &j);
+    print_hex(eip, &i);
+    print_string("\n", &i, &j);
+
+    if (vector == 14) {
+        uint32_t cr2;
+        __asm__ volatile ("mov %%cr2, %0" : "=r"(cr2));
+        print_string("CR2 = ", &i, &j);
+        print_hex(cr2, &i);
+        print_string("\n", &i, &j);
+    }
+
     __asm__ volatile("cli; hlt");
 }
 

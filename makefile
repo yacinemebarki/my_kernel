@@ -77,12 +77,9 @@ elf_test:
 	$(CC) -m32 -ffreestanding -fno-pie -fno-pic -nostdlib \
 		-c $(ELF_TEST_C) -o $(ELF_TEST_O)
 
-	$(CC) -m32 -ffreestanding -fno-pie -fno-pic -nostdlib \
-		-c $(USER_SPACE_C) -o $(USER_SPACE_O)
-
 	$(LD) -m elf_i386 -Ttext 0x08048000 \
 		-e _start \
-		-o $(ELF_TEST) $(ELF_TEST_O) $(USER_SPACE_O)
+		-o $(ELF_TEST) $(ELF_TEST_O) 
 
 	objcopy -I binary -O elf32-i386 -B i386 \
 		$(ELF_TEST) $(ELF_TEST_OBJ)

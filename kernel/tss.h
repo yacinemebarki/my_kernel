@@ -1,6 +1,7 @@
 #ifndef TSS_H
 #define TSS_H
 #include "types.h"
+#include "process.h"
 
 typedef struct __attribute__((packed)){
     uint16_t prev_tss, reserved0;
@@ -52,7 +53,7 @@ void init_tss(void);
 extern tss_t tss;
 extern struct  gdt_entry gdt[6];
 extern struct gdt_ptr gp;
-void set_kernel_stack(uint32_t stack);
+void set_kernel_stack(process_t *next);
 
 #endif
 

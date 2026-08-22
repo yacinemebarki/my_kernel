@@ -41,6 +41,6 @@ void init_gdt(void){
     tss_flush();
 }
 
-void set_kernel_stack(uint32_t stack){
-    tss.esp0 = stack;
+void set_kernel_stack(process_t *next){
+    tss.esp0 = next->kernel_stack + 4096;
 }

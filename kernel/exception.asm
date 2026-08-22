@@ -24,12 +24,19 @@ isr0:
     jmp isr_common    
 
 isr_common:
-    pusha
-    push dword [esp + 32]
-    call fault_handler
+    pusha                  
 
-    add esp, 4
+    mov eax, [esp + 32]   
+    mov ebx, [esp + 36]     
+    mov ecx, [esp + 40]     
+
+    push ecx
+    push ebx
+    push eax
+    call fault_handler
+    add esp, 12            
+
     popa
-    add esp, 8
+    add esp, 8               
     iretd
 

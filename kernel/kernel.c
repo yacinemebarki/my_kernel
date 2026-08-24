@@ -201,7 +201,7 @@ void test_sleep(void){
 int switch_mode(){
     last_key = KEY_NONE;
     unsigned long end = ticks + 300;
-    print_string("click f12 if you want to stay in the bios", &i, &j);
+    print_string("click f10 if you want to stay in the bios", &i, &j);
     while (ticks < end){
         if(last_key == KEY_F10){
             i = 400;
@@ -276,5 +276,18 @@ void kernel(){
     unsigned long last = 0;
     unsigned long test = 0;
     process_t *p2 = create_process(uptime_task, PROCESS_KERNEL);
+    /*
+    print_string("p2 = ", &i, &j);
+    print_hex((uint32_t)p2, &i);
+
+    print_string("p2 EIP = ", &i, &j);
+    print_hex(p2->regs->eip, &i);
+
+    print_string("p2 CS = ", &i, &j);
+    print_hex(p2->regs->cs, &i);
+
+    print_string("uptime_task = ", &i, &j);
+    print_hex((uint32_t)uptime_task, &i);
+    */
     restore_esp(current_process);
 }

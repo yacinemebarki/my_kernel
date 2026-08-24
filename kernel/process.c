@@ -48,10 +48,11 @@ process_t *create_process(void (*entry)(void), int mode){
         pro->user_stack = user_stack;
     }
 
-    registers_t *regs = (registers_t *)(kernel_stack + 4096 - sizeof(registers_t));
+    registers_t *regs = (registers_t *)kmalloc(sizeof(registers_t), PAGE_PRESENT | PAGE_WRITE);
 
     pro->regs = regs;
     pro->kernel_stack = kernel_stack;
+    pro->kernel_stack_to = kernel_stack + KERNEL_STACK_SIZE;
     pro->pid = process_number++;
     pro->state = PROCESS_READY;
     pro->wake = 0;
@@ -150,36 +151,29 @@ void save_context(registers_t *regs){
 }
 
 void context_switch(registers_t *reg, process_t *next){
-    save_context(reg);
+    print_string("\n--- SWITCH ---\n", &i, &j);
 
-    current_process = next;
+    print_string("incoming regs = ", &i, &j);
+    print_hex((uint32_t)reg, &i);
 
-    print_string("\nPID = ", &i, &j);
-    print_number(current_process->pid, &i);
+    print_string("\nincoming EIP = ", &i, &j);
+    print_hex(reg->eip, &i);
 
-    print_string("\nstate = ", &i, &j);
-    print_number(current_process->state, &i);
-
-    print_string("\ncs = ", &i, &j);
-    print_hex(current_process->regs->cs, &i);
-
-    print_string("\neip = ", &i, &j);
-    print_hex(current_process->regs->eip, &i);
-
-    print_string("\nnext PID = ", &i, &j);
-    print_hex(next->pid, &i);
+    print_string("\nincoming CS = ", &i, &j);
+    print_hex(reg->cs, &i);
 
     print_string("\nnext regs = ", &i, &j);
     print_hex((uint32_t)next->regs, &i);
 
-    print_string("\nnext kernel_stack = ", &i, &j);
-    print_hex(next->kernel_stack, &i);
+    print_string("\nnext EIP = ", &i, &j);
+    print_hex(next->regs->eip, &i);
 
     print_string("\nnext CS = ", &i, &j);
     print_hex(next->regs->cs, &i);
 
-    print_string("\n next EIP = ", &i, &j);
-    print_hex(next->regs->eip, &i);
+    save_context(reg);
+
+    current_process = next;
 
     set_kernel_stack(next);
 

@@ -48,8 +48,7 @@ process_t *create_process(void (*entry)(void), int mode){
         pro->user_stack = user_stack;
     }
 
-    registers_t *regs = (registers_t *)kmalloc(sizeof(registers_t), PAGE_PRESENT | PAGE_WRITE);
-
+    registers_t *regs = (registers_t *)(kernel_stack + SAVED_REGS_OFFSET);
     pro->regs = regs;
     pro->kernel_stack = kernel_stack;
     pro->kernel_stack_to = kernel_stack + KERNEL_STACK_SIZE;
@@ -70,7 +69,7 @@ process_t *create_process(void (*entry)(void), int mode){
         regs->cs = KERNEL_CS;
         regs->eflags = 0x202;
 
-        regs->esp = kernel_stack + 4096 - sizeof(registers_t); 
+        regs->esp = kernel_stack + KERNEL_STACK_SIZE;
     } else {
 
         regs->gs = USER_DS;
@@ -146,11 +145,27 @@ process_t *find_process(process_t *pro){
 
 void save_context(registers_t *regs){
     if (current_process != NULL && current_process->regs != NULL){
+        /*
+        print_string("\nRAW FRAME\n", &i, &j);
+
+        print_string("regs = ", &i, &j);
+        print_hex((uint32_t)regs, &i);
+
+        print_string("\n+48 = ", &i, &j);
+        print_hex(*(uint32_t *)((uint8_t *)regs + 48), &i);
+
+        print_string("\n+52 = ", &i, &j);
+        print_hex(*(uint32_t *)((uint8_t *)regs + 52), &i);
+
+        print_string("\n+56 = ", &i, &j);
+        print_hex(*(uint32_t *)((uint8_t *)regs + 56), &i);
+        */
         *current_process->regs = *regs;
     }
 }
 
 void context_switch(registers_t *reg, process_t *next){
+    
     print_string("\n--- SWITCH ---\n", &i, &j);
 
     print_string("incoming regs = ", &i, &j);
@@ -170,12 +185,10 @@ void context_switch(registers_t *reg, process_t *next){
 
     print_string("\nnext CS = ", &i, &j);
     print_hex(next->regs->cs, &i);
-
+   
     save_context(reg);
 
     current_process = next;
-
-    set_kernel_stack(next);
 
     restore_esp(next);
 }

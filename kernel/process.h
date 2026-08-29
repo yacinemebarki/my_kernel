@@ -8,7 +8,6 @@
 #define USER_DS 0x23
 #define USER_STACK_TOP 0xBFFFF000
 
-#define KERNEL_STACK_SIZE 4096
 #define CONTEXT_SIZE sizeof(registers_t)
 #define KERNEL_STACK_GAP 128
 #define SAVED_REGS_OFFSET 0x100
@@ -16,7 +15,7 @@
 #define PROCESS_KERNEL 0
 #define PROCESS_USER 1
 
-#define KERNEL_STACK_SIZE 4096
+#define KERNEL_STACK_SIZE (4096 * 4)
 #define SAVED_REGS_OFFSET 0x100
 
 typedef enum{

@@ -42,7 +42,6 @@ void sys_yield(registers_t *regs){
     process_t *old = current_process;
     wake_processes();
     process_t *next = schedule();
-    number_switch++;
 
     if (next != NULL && next != old) {       
         context_switch(regs, next);

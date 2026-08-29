@@ -47,8 +47,8 @@ process_t *create_process(void (*entry)(void), int mode){
         }
         pro->user_stack = user_stack;
     }
+    registers_t *regs = (registers_t *)(kernel_stack + KERNEL_STACK_SIZE - sizeof(registers_t));
 
-    registers_t *regs = (registers_t *)(kernel_stack + SAVED_REGS_OFFSET);
     pro->regs = regs;
     pro->kernel_stack = kernel_stack;
     pro->kernel_stack_to = kernel_stack + KERNEL_STACK_SIZE;
@@ -69,7 +69,7 @@ process_t *create_process(void (*entry)(void), int mode){
         regs->cs = KERNEL_CS;
         regs->eflags = 0x202;
 
-        regs->esp = kernel_stack + KERNEL_STACK_SIZE;
+        regs->esp = kernel_stack + KERNEL_STACK_GAP;
     } else {
 
         regs->gs = USER_DS;
@@ -144,28 +144,50 @@ process_t *find_process(process_t *pro){
 }
 
 void save_context(registers_t *regs){
-    if (current_process != NULL && current_process->regs != NULL){
-        /*
-        print_string("\nRAW FRAME\n", &i, &j);
+    if (!current_process || !current_process->regs)
+        return;
 
-        print_string("regs = ", &i, &j);
-        print_hex((uint32_t)regs, &i);
+    current_process->regs->gs = regs->gs;
+    current_process->regs->fs = regs->fs;
+    current_process->regs->es = regs->es;
+    current_process->regs->ds = regs->ds;
 
-        print_string("\n+48 = ", &i, &j);
-        print_hex(*(uint32_t *)((uint8_t *)regs + 48), &i);
+    current_process->regs->edi = regs->edi;
+    current_process->regs->esi = regs->esi;
+    current_process->regs->ebp = regs->ebp;
+    current_process->regs->esp = regs->esp;
 
-        print_string("\n+52 = ", &i, &j);
-        print_hex(*(uint32_t *)((uint8_t *)regs + 52), &i);
+    current_process->regs->ebx = regs->ebx;
+    current_process->regs->edx = regs->edx;
+    current_process->regs->ecx = regs->ecx;
+    current_process->regs->eax = regs->eax;
 
-        print_string("\n+56 = ", &i, &j);
-        print_hex(*(uint32_t *)((uint8_t *)regs + 56), &i);
-        */
-        *current_process->regs = *regs;
+    current_process->regs->eip = regs->eip;
+    current_process->regs->cs = regs->cs;
+    current_process->regs->eflags = regs->eflags;
+
+    if ((regs->cs & 3) == 3) {
+        current_process->regs->user_esp = regs->user_esp;
+        current_process->regs->user_ss = regs->user_ss;
     }
+    print_string("\nSAVE PID = ", &i, &j);
+    print_hex(current_process->pid, &i);
+
+    print_string("\nsource CS = ", &i, &j);
+    print_hex(regs->cs, &i);
+
+    print_string("\nsaved CS = ", &i, &j);
+    print_hex(current_process->regs->cs, &i);
+
+    print_string("\nsource EIP = ", &i, &j);
+    print_hex(regs->eip, &i);
+
+    print_string("\nsaved EIP = ", &i, &j);
+    print_hex(current_process->regs->eip, &i);
 }
 
 void context_switch(registers_t *reg, process_t *next){
-    
+    /*
     print_string("\n--- SWITCH ---\n", &i, &j);
 
     print_string("incoming regs = ", &i, &j);
@@ -185,11 +207,22 @@ void context_switch(registers_t *reg, process_t *next){
 
     print_string("\nnext CS = ", &i, &j);
     print_hex(next->regs->cs, &i);
-   
-    save_context(reg);
+    */
 
+    save_context(reg);
+    /*
+    print_string("\nAFTER SAVE\n", &i, &j);
+
+    print_string("next CS = ", &i, &j);
+    print_hex(next->regs->cs, &i);
+    */
     current_process = next;
 
+    print_string("\nBEFORE RESTORE\n", &i, &j);
+
+    print_string("restore CS = ", &i, &j);
+    print_hex(next->regs->cs, &i);
+   
     restore_esp(next);
 }
 process_t *schedule(){

@@ -12,7 +12,7 @@ uint32_t page_directory[1024] __attribute__((aligned(4096)));
 Block *heap_head = NULL;
 Block *current_block = NULL;
 
-uint32_t next_virtual = 0xC0000000;
+uint32_t next_virtual = 0;
 uint32_t free_virtual[MAX_FREE_PAGES];
 uint32_t free_count = 0;
 
@@ -24,6 +24,11 @@ extern int j;
 
 uint16_t *entry = (uint16_t *)0x0500;
 Memory_Map *map = (Memory_Map *)0x504;
+
+
+void init_virtual_allocator(void){
+    next_virtual = ((uint32_t)&_kernel_end + 4095) & ~0xFFF;
+}
 
 void search(int i, int j){
     print_string("Entries: ", &i, &j);
@@ -184,6 +189,25 @@ uint32_t allocate_page(unsigned int flag){
     
     map_page(physical, virtual, flag);
     return virtual;
+}
+
+uint32_t allocate_pages_contig(int count, unsigned int flag){
+    if (flag == 0) {
+        flag = PAGE_PRESENT | PAGE_WRITE;
+    }
+
+    uint32_t virtual_start = next_virtual;
+    next_virtual += count * 4096;   
+
+    for (int k = 0; k < count; k++){
+        uint32_t phy = allocate(4096);
+        if (phy == 0){
+            return 0;   
+        }
+        map_page(phy, virtual_start + k * 4096, flag);
+    }
+
+    return virtual_start;
 }
 
 uint32_t *get_pte(uint32_t virtual){

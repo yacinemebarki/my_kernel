@@ -20,4 +20,7 @@ SECTIONS
         *(COMMON)
         _bss_end = .;
     }
+
+    . = ALIGN(4096);
+    _kernel_end = .;
 }

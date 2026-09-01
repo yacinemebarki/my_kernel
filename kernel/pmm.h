@@ -29,6 +29,7 @@ extern Block *current_block;
 extern uint32_t next_virtual;
 extern uint32_t free_virtual[MAX_FREE_PAGES];
 extern uint32_t free_count;
+extern uint32_t _kernel_end;
 
 void build_first_page();
 void search(int i, int j);
@@ -45,5 +46,8 @@ void kfree(uint32_t addr);
 void inspect();
 void memset(void *ptr, int value, uint32_t size);
 void *memcpy(void *dest, void *src, uint32_t n);
+void init_virtual_allocator(void);
+uint32_t allocate_pages_contig(int count, unsigned int flag);
+
 
 #endif

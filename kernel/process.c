@@ -28,7 +28,7 @@ process_t *create_process(void (*entry)(void), int mode){
     if (pro == NULL)
         return NULL;
 
-    uint32_t kernel_stack = allocate_page(PAGE_PRESENT | PAGE_WRITE);
+    uint32_t kernel_stack = allocate_pages_contig(KERNEL_STACK_SIZE / 4096, PAGE_PRESENT | PAGE_WRITE);
 
     if (kernel_stack == 0) {
         kfree((uint32_t)pro);
@@ -59,7 +59,6 @@ process_t *create_process(void (*entry)(void), int mode){
     pro->entry = entry;
     memset(regs, 0, sizeof(registers_t));
     if (mode == PROCESS_KERNEL) {
-
         regs->gs = KERNEL_DS;
         regs->fs = KERNEL_DS;
         regs->es = KERNEL_DS;
@@ -69,9 +68,9 @@ process_t *create_process(void (*entry)(void), int mode){
         regs->cs = KERNEL_CS;
         regs->eflags = 0x202;
 
-        regs->esp = kernel_stack + KERNEL_STACK_GAP;
-    } else {
-
+        regs->esp = kernel_stack + KERNEL_STACK_SIZE;
+    }
+    else {
         regs->gs = USER_DS;
         regs->fs = USER_DS;
         regs->es = USER_DS;
@@ -80,6 +79,8 @@ process_t *create_process(void (*entry)(void), int mode){
         regs->eip = (uint32_t)entry;
         regs->cs = USER_CS;
         regs->eflags = 0x202;
+
+        regs->esp = kernel_stack + KERNEL_STACK_SIZE;
 
         regs->user_esp = user_stack + 4096;
         regs->user_ss = USER_DS;

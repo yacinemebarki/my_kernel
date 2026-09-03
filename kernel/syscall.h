@@ -1,6 +1,7 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 #include "process.h"
+#include "elf.h"
 
 #define SYS_EXIT   0
 #define SYS_YIELD  1
@@ -18,6 +19,7 @@
 #define SYS_WAIT 13
 #define SYS_GET_PARENT_PID 14
 #define SYS_FORK 15
+#define SYS_EXEC 16
 
 void sys_yield(registers_t *regs);
 void sys_exit(int status);

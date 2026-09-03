@@ -100,6 +100,12 @@ int user_fork(){
     return pid;
 }
 
+int user_exec(process_t *pro, void *file){
+    int success;
+    __asm__ volatile("int $0x080": "=a"(success): "a"(SYS_EXEC), "b"(pro), "c"(file));
+    return success;
+}
+
 void user_main(){
     write_string("hello to your space");
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);

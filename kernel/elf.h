@@ -61,5 +61,6 @@ typedef struct {
 
 void *elf_load_file(void *file);
 process_t *create_elf_process(void *file);
+int check_elf_supported(Elf32_Ehdr *hdr);
 
 #endif

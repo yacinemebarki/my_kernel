@@ -172,6 +172,7 @@ int sys_fork(registers_t *regs){
     child->parent = parent;
 
     child->state = PROCESS_READY;
+    /*
     print_string("\nPARENT EIP = ", &i, &j);
     print_hex(regs->eip, &i);
 
@@ -194,8 +195,21 @@ int sys_fork(registers_t *regs){
     print_hex(child->regs->eax, &i);
 
     print_string("\n================================\n", &i, &j);
+    */
 
     return child->pid;
+}
+
+int sys_exec(process_t *p, void *file){
+    uint32_t entry = elf_load_file(file);
+
+    if(entry == 0){
+        return -1;
+    }
+
+    p->regs->eip = entry;
+    p->regs->esp = USER_STACK_TOP;
+    return 0;
 }
 
 void syscall_dispatch(registers_t *regs){
@@ -254,6 +268,9 @@ void syscall_dispatch(registers_t *regs){
             regs->eax = sys_fork(regs);
             break;
 
+        case SYS_EXEC:
+            regs->eax = sys_exect((process_t *)regs->ebx, (void *)regs->ecx);
+            break;
         default:
             break;
     }

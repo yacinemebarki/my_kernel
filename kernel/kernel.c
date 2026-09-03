@@ -116,7 +116,13 @@ void keyboard_handler(void){
 
 volatile unsigned long ticks = 0;
 
-void irq0_handler(registers_t *regs){ 
+void irq0_handler(registers_t *regs){
+    
+    if (current_process && *(uint32_t *)current_process->kernel_stack != 0xDEADC0DE) {
+        print_string("STACK OVERFLOW PID=", &i, &j);
+        print_hex(current_process->pid, &i);
+        __asm__ volatile("cli; hlt");
+    }
     ticks++;  
     outb(0x20, 0x20);                
 
@@ -291,6 +297,24 @@ void kernel(){
 
     unsigned long last = 0;
     process_t *p2 = create_process(uptime_task, PROCESS_KERNEL);
+
+    print_string("\nP2 KSTACK = ", &i, &j);
+    print_hex(p2->kernel_stack, &i);
+
+    print_string("\nP2 KSTACK TOP = ", &i, &j);
+    print_hex(p2->kernel_stack_to, &i);
+
+    print_string("\nP2 REGS = ", &i, &j);
+    print_hex((uint32_t)p2->regs, &i);
+
+    print_string("\nP2 EIP = ", &i, &j);
+    print_hex(p2->regs->eip, &i);
+
+    print_string("\nP2 CS = ", &i, &j);
+    print_hex(p2->regs->cs, &i);
+
+    print_string("\nP2 ESP = ", &i, &j);
+    print_hex(p2->regs->esp, &i);
     
     restore_esp(current_process);
 }

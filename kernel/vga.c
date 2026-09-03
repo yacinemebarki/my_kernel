@@ -16,7 +16,7 @@ void print(char c, int i){
     line[2 * i + 1] = 0x0F;
 }
 
-void add_line(){
+void add_line(int *cursor){
     unsigned short *vga = (unsigned short*)0xB8000;
 
     for (int row = 1; row < 25; row++) {
@@ -30,16 +30,17 @@ void add_line(){
         vga[24 * 80 + col] = blank;
     }
 
-    if (i >= 2000) {
-        i -= 80;
+    if (*cursor >= 2000) {
+        *cursor -= 80;
     }
 }
 
 static inline void add_line_if_needed(int *cursor){
     if (*cursor >= 2000) {
-        add_line();
+        add_line(cursor);
     }
 }
+
 
 void clear(int i){
     char *line = (char *)0xB8000;

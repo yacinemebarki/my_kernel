@@ -105,17 +105,11 @@ void *elf_load_file(void *file){
 
 process_t *create_elf_process(void *file){
     process_t *p = create_process(NULL, PROCESS_USER);
-    print_string("canary immediately after create_process = ", &i, &j);
-    print_hex(*(uint32_t *)p->kernel_stack, &i);
-    print_string("\n", &i, &j);
     if(p == NULL){
         print_string("process creation faild", &i, &j);
         return NULL;
     }
     uint32_t *entry = (uint32_t *) elf_load_file(file);
-    print_string("canary after user stack map = ", &i, &j);
-    print_hex(*(uint32_t *)p->kernel_stack, &i);
-    print_string("\n", &i, &j);
 
     if (entry != NULL) {
         print_string("ELF loaded successfully\n", &i, &j);

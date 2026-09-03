@@ -118,11 +118,6 @@ volatile unsigned long ticks = 0;
 
 void irq0_handler(registers_t *regs){
     
-    if (current_process && *(uint32_t *)current_process->kernel_stack != 0xDEADC0DE) {
-        print_string("STACK OVERFLOW PID=", &i, &j);
-        print_hex(current_process->pid, &i);
-        __asm__ volatile("cli; hlt");
-    }
     ticks++;  
     outb(0x20, 0x20);                
 
@@ -225,20 +220,12 @@ int switch_mode(){
 void kernel(){
     //fix the screen
     clear_screen();
-    print_string("hello world\n", &i, &j);
     print_time_message("start os", start_pos);
     
     print_string("Before paging \n", &i, &j);
 
     init_gdt();
-
-    init_virtual_allocator();
-    build_first_page();
-    print_string("\n", &i, &j);
-    load_page_directory(page_directory);
-    enable_paging();
-
-    //add the interruptions
+    /* setup interrupts early so keyboard ISR can capture F10 */
     ptr.limit = sizeof(idt) - 1;
     ptr.base = (uint32_t)&idt;
     remap_pic();
@@ -253,6 +240,27 @@ void kernel(){
     sti();
     pit_init(11931);
 
+    /* allow user to choose to stay in BIOS before we enable paging */
+    {
+        int choice = switch_mode();
+        if (choice == 0) {
+            clear_screen();
+            print_string("Staying in BIOS mode. Halting...\n", &i, &j);
+            print_string("from the bios", &i, &j);
+
+            unsigned long last = 0;
+            process_t *p2 = create_process(uptime_task, PROCESS_KERNEL);
+            restore_esp(current_process);
+
+        }
+    }
+
+    init_virtual_allocator();
+    build_first_page();
+    print_string("\n", &i, &j);
+    load_page_directory(page_directory);
+    enable_paging();
+
     
     void *file = _binary_user_elf_test_elf_start;
 
@@ -265,24 +273,6 @@ void kernel(){
         print_string("ELF process loaded successfully\n", &i, &j);
         print_hex((uint32_t)p, &i);
     }
-    print_string("\nP1 KSTACK = ", &i, &j);
-    print_hex(p->kernel_stack, &i);
-
-    print_string("\nP1 KSTACK TOP = ", &i, &j);
-    print_hex(p->kernel_stack_to, &i);
-
-    print_string("\nP1 REGS = ", &i, &j);
-    print_hex((uint32_t)p->regs, &i);
-
-    print_string("\nP1 EIP = ", &i, &j);
-    print_hex(p->regs->eip, &i);
-
-    print_string("\nP1 CS = ", &i, &j);
-    print_hex(p->regs->cs, &i);
-
-    print_string("\nP1 ESP = ", &i, &j);
-    print_hex(p->regs->esp, &i);
-
     
     int choice = switch_mode();
 
@@ -293,28 +283,4 @@ void kernel(){
         restore_esp(current_process);
     }
 
-    print_string("from the bios", &i, &j);
-
-    unsigned long last = 0;
-    process_t *p2 = create_process(uptime_task, PROCESS_KERNEL);
-
-    print_string("\nP2 KSTACK = ", &i, &j);
-    print_hex(p2->kernel_stack, &i);
-
-    print_string("\nP2 KSTACK TOP = ", &i, &j);
-    print_hex(p2->kernel_stack_to, &i);
-
-    print_string("\nP2 REGS = ", &i, &j);
-    print_hex((uint32_t)p2->regs, &i);
-
-    print_string("\nP2 EIP = ", &i, &j);
-    print_hex(p2->regs->eip, &i);
-
-    print_string("\nP2 CS = ", &i, &j);
-    print_hex(p2->regs->cs, &i);
-
-    print_string("\nP2 ESP = ", &i, &j);
-    print_hex(p2->regs->esp, &i);
-    
-    restore_esp(current_process);
 }

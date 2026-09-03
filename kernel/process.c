@@ -30,13 +30,6 @@ process_t *create_process(void (*entry)(void), int mode){
 
     uint32_t kernel_stack = allocate_pages_contig(KERNEL_STACK_SIZE / 4096, PAGE_PRESENT | PAGE_WRITE);
 
-    *(uint32_t *)kernel_stack = 0xDEADC0DE;
-    print_string("canary write, stack phys/virt = ", &i, &j);
-    print_hex(kernel_stack, &i);
-    print_string(" val=", &i, &j);
-    print_hex(*(uint32_t *)kernel_stack, &i);
-    print_string("\n", &i, &j);
-
     if (kernel_stack == 0) {
         kfree((uint32_t)pro);
         return NULL;
@@ -154,7 +147,7 @@ process_t *find_process(process_t *pro){
 void save_context(registers_t *regs){
     if (!current_process || !current_process->regs)
         return;
-    /*
+    
     current_process->regs->gs = regs->gs;
     current_process->regs->fs = regs->fs;
     current_process->regs->es = regs->es;
@@ -178,6 +171,7 @@ void save_context(registers_t *regs){
         current_process->regs->user_esp = regs->user_esp;
         current_process->regs->user_ss = regs->user_ss;
     }
+    /*
     print_string("\nSAVE PID = ", &i, &j);
     print_hex(current_process->pid, &i);
 
@@ -228,11 +222,6 @@ void context_switch(registers_t *reg, process_t *next){
     */
     current_process = next;
     tss.esp0 = next->kernel_stack_to;
-
-    print_string("\nBEFORE RESTORE\n", &i, &j);
-
-    print_string("restore CS = ", &i, &j);
-    print_hex(next->regs->cs, &i);
    
     restore_esp(next);
 }

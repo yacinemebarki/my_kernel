@@ -3,6 +3,11 @@
 
 #include "../kernel/process.h"
 
+void sys_prints(char *string);
+void sys_printc(char c);
+void sys_printn(unsigned long n);
+void sys_printhex(uint32_t n);
+
 void write_string(char *str);
 void write_char(char c);
 void write_number(unsigned long n);

@@ -200,8 +200,9 @@ int sys_fork(registers_t *regs){
     return child->pid;
 }
 
-int sys_exec(process_t *p, void *file){
-    uint32_t entry = elf_load_file(file);
+int sys_exec(void *file){
+    uint32_t entry = (uint32_t)elf_load_file(file);
+    process_t *p = current_process;
 
     if(entry == 0){
         return -1;
@@ -269,7 +270,7 @@ void syscall_dispatch(registers_t *regs){
             break;
 
         case SYS_EXEC:
-            regs->eax = sys_exect((process_t *)regs->ebx, (void *)regs->ecx);
+            regs->eax = sys_exec((process_t *)regs->ebx);
             break;
         default:
             break;

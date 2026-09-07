@@ -65,6 +65,11 @@ KERNEL_BIN = kernel.bin
 KERNEL_O = kernel/kernel.o
 KERNEL_ENTRY_O = kernel/kernel_entry.o
 
+PROGRAM2_C = user/program2.c
+PROGRAM2_O = user/program2.o
+PROGRAM2_ELF = user/program2.elf
+PROGRAM2_OBJ = user/program2_blob.o
+
 .PHONY: all boot kernel image run clean
 
 all: elf_test image
@@ -74,15 +79,21 @@ boot:
 
 
 elf_test:
-	$(CC) -m32 -ffreestanding -fno-pie -fno-pic -nostdlib \
-		-c $(ELF_TEST_C) -o $(ELF_TEST_O)
+	$(CC) $(CFLAGS) $(USER_SPACE_C) -o $(USER_SPACE_O)
+	$(CC) $(CFLAGS) $(PROGRAM2_C) -o $(PROGRAM2_O)
 
 	$(LD) -m elf_i386 -Ttext 0x08048000 \
 		-e _start \
-		-o $(ELF_TEST) $(ELF_TEST_O) 
+		-o $(PROGRAM2_ELF) $(PROGRAM2_O) $(USER_SPACE_O)
 
 	objcopy -I binary -O elf32-i386 -B i386 \
-		$(ELF_TEST) $(ELF_TEST_OBJ)
+		$(PROGRAM2_ELF) $(PROGRAM2_OBJ)
+
+	$(CC) $(CFLAGS) $(ELF_TEST_C) -o $(ELF_TEST_O)
+
+	$(LD) -m elf_i386 -Ttext 0x08048000 \
+		-e _start \
+		-o $(ELF_TEST) $(ELF_TEST_O) $(PROGRAM2_OBJ)
 
 
 kernel:
@@ -121,4 +132,4 @@ run:
 	qemu-system-i386 -drive format=raw,file=$(IMG)
 
 clean:
-	rm -f boot/*.bin kernel/*.o *.elf $(IMG)
+	rm -f boot/*.bin kernel/*.o *.elf user/*.o .elf $(IMG)

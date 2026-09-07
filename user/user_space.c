@@ -100,9 +100,9 @@ int user_fork(){
     return pid;
 }
 
-int user_exec(process_t *pro, void *file){
+int user_exec(void *file){
     int success;
-    __asm__ volatile("int $0x080": "=a"(success): "a"(SYS_EXEC), "b"(pro), "c"(file));
+    __asm__ volatile("int $0x080": "=a"(success): "a"(SYS_EXEC), "b"(file));
     return success;
 }
 

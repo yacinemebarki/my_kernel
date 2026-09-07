@@ -21,5 +21,6 @@ void user_main(void);
 int user_wait(int *status);
 int user_get_parent_pid(process_t *pro);
 int user_fork();
+int user_exec(void *file);
 
 #endif

@@ -81,7 +81,7 @@ start:
     xor bx, bx
 
     mov ah, 0x02      
-    mov al, 68
+    mov al, 114
     mov ch, 0         
     mov cl, 2        
     mov dh, 0         

@@ -201,8 +201,9 @@ int sys_fork(registers_t *regs){
 }
 
 int sys_exec(void *file){
-    uint32_t entry = (uint32_t)elf_load_file(file);
     process_t *p = current_process;
+
+    uint32_t entry = (uint32_t)elf_load_file(file);
 
     if(entry == 0){
         return -1;
@@ -270,7 +271,9 @@ void syscall_dispatch(registers_t *regs){
             break;
 
         case SYS_EXEC:
-            regs->eax = sys_exec((process_t *)regs->ebx);
+            regs->eax = sys_exec((void *)regs->ebx);
+            print_string("\nthe result of exec", &i, &j);
+            print_number((int) regs->eax, &i);
             break;
         default:
             break;

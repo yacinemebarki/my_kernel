@@ -103,7 +103,7 @@ int user_fork(){
 
 int user_exec(void *file){
     int success;
-    __asm__ volatile("int $0x080": "=a"(success): "a"(SYS_EXEC), "b"(file));
+    __asm__ volatile("int $0x080": "=a"(success): "a"(SYS_EXEC), "b"((uint32_t)file));
     return success;
 }
 

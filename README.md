@@ -13,9 +13,14 @@ This repository builds a raw disk image (`disk.img`) containing a 512-byte boot 
 - **Interrupts & exceptions:** IDT setup and handlers for keyboard, PIT, and CPU faults (`kernel/idt.c`, `kernel/keyboard_isr.asm`, `kernel/irqo.asm`, `kernel/exception.asm`).
 - **Drivers (VGA & keyboard):** Text console (cursor, wrapping, clear, backspace) and keyboard input parsing (`kernel/vga.c`, `kernel/keyboard.c`).
 - **Scheduler / context switching:** Timer-driven, simple process switching support and stack restore trampoline (`kernel/process.c`, `kernel/restore_esp.asm`).
-- **User-space & syscalls:** Enter user mode and syscall handling for basic user/kernel transitions (`kernel/enter_user_mode.asm`, `kernel/sycall_handeler.asm`, `kernel/syscall.c`, `user/user_space.c`).
+- **ELF user programs:** 32-bit ELF validation, segment loading, and process creation from embedded ELF binaries (`kernel/elf.c`, `kernel/elf.h`, `user/elf_test.c`).
+- **User-space process lifecycle:** User-mode creation, exit, yield, sleep, `fork`, `wait`, `exec`, and parent/child PID handling through a syscall interface (`kernel/syscall.c`, `user/user_space.c`).
 - **Memory allocators & tests:** Page allocator, `kmalloc`/`kfree`, inspection helpers and an in-kernel test suite (`kernel/pmm.c`, `kernel/tests.c`).
 - **Build/run tooling:** `make` builds `disk.img`, `make run` launches QEMU; build steps and sources are in the `makefile`.
+
+### Recent additions
+
+This kernel now supports loading and running user programs packaged as ELF executables. The loader validates ELF headers, loads program segments into memory, and creates a user process from the resulting image. In addition, the syscall layer now exposes a small user-space process API for creating tasks, yielding execution, sleeping, waiting on child processes, forking, and replacing the current image with a new ELF program.
 
 ## Prerequisites
 

@@ -111,9 +111,3 @@ Contributions, bug reports, and suggestions are welcome — open an issue or sub
 This project is provided for educational purposes. No explicit license is included; add one if you intend to share or accept contributions.
 
 ---
-
-If you'd like, I can also:
-- add a short build-and-run script,
-- add a CONTRIBUTING.md, or
-- enable an automated test target in the Makefile.
-Tell me which you'd prefer.

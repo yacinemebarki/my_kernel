@@ -3,27 +3,6 @@
 #include "user_test.h"
 #include "user_space.h"
 
-#ifndef USERSPACE_LIB
-extern unsigned char _binary_user_program1_elf_start[];
-#endif
-
-#ifdef USERSPACE_LIB
-void sys_prints(char *string){
-    write_string(string);
-}
-
-void sys_printc(char c){
-    write_char(c);
-}
-
-void sys_printn(unsigned long n){
-    write_number(n);
-}
-
-void sys_printhex(uint32_t n){
-    write_hex(n);
-}
-#endif
 
 void write_string(char *str){
     __asm__ volatile("int $0x80":: "a"(SYS_PRINTS), "b"(str): "memory");
@@ -129,9 +108,21 @@ int user_exec(void *file){
 }
 
 #ifndef USERSPACE_LIB
+extern unsigned char _binary_user_program1_elf_start[];
+extern unsigned char _binary_user_program1_elf_end[];
+
 void user_main(){
     write_string("hello to your space");
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
+    write_string("Before exec\n");
+
+    int ret = user_exec(_binary_user_program1_elf_start);
+
+    write_string("After exec\n");
+
+    if (ret < 0) {
+        write_string("exec failed\n");
+    }
     while(1){     
         user_yield();
     }

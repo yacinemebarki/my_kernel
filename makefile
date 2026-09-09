@@ -79,25 +79,27 @@ USERSPACE_LIB_O = user/user_space_lib.o
 
 .PHONY: all boot kernel image run clean elf_test program1 program2
 
-all: elf_test program1 program2 image
+all: elf_test program1 image
 
 boot:
 	nasm -f bin $(BOOT) -o $(BOOT_BIN)
 
 
-program1: program2
-	$(CC) $(CFLAGS) -DUSERSPACE_LIB $(USER_SPACE_C) -o $(USERSPACE_LIB_O)
-	$(CC) $(CFLAGS) $(PROGRAM1_C) -o $(PROGRAM1_O)
+elf_test:
+	$(CC) -m32 -ffreestanding -fno-pie -fno-pic -nostdlib \
+		-c $(ELF_TEST_C) -o $(ELF_TEST_O)
 
 	$(LD) -m elf_i386 -Ttext 0x08048000 \
 		-e _start \
-		-o $(PROGRAM1_ELF) $(PROGRAM1_O) $(USERSPACE_LIB_O) $(PROGRAM2_OBJ)
+		-o $(ELF_TEST) $(ELF_TEST_O) 
 
 	objcopy -I binary -O elf32-i386 -B i386 \
-		$(PROGRAM1_ELF) $(PROGRAM1_OBJ)
+		$(ELF_TEST) $(ELF_TEST_OBJ)
 
-program2:
-	$(CC) $(CFLAGS) -DUSERSPACE_LIB $(USER_SPACE_C) -o $(USERSPACE_LIB_O)
+user_space_lib:
+	$(CC) $(CFLAGS) -DUSERSPACE_LIB -c user/user_space.c -o $(USERSPACE_LIB_O)
+
+program2: user_space_lib
 	$(CC) $(CFLAGS) $(PROGRAM2_C) -o $(PROGRAM2_O)
 
 	$(LD) -m elf_i386 -Ttext 0x08048000 \
@@ -107,19 +109,17 @@ program2:
 	objcopy -I binary -O elf32-i386 -B i386 \
 		$(PROGRAM2_ELF) $(PROGRAM2_OBJ)
 
-elf_test:
-	$(CC) $(CFLAGS) -DUSERSPACE_LIB $(USER_SPACE_C) -o $(USERSPACE_LIB_O)
-	$(CC) $(CFLAGS) $(ELF_TEST_C) -o $(ELF_TEST_O)
+program1: program2 user_space_lib
+	$(CC) $(CFLAGS) $(PROGRAM1_C) -o $(PROGRAM1_O)
 
 	$(LD) -m elf_i386 -Ttext 0x08048000 \
 		-e _start \
-		-o $(ELF_TEST) $(ELF_TEST_O) $(USERSPACE_LIB_O)
+		-o $(PROGRAM1_ELF) $(PROGRAM1_O) $(PROGRAM2_OBJ) $(USERSPACE_LIB_O)
 
 	objcopy -I binary -O elf32-i386 -B i386 \
-		$(ELF_TEST) $(ELF_TEST_OBJ)
+		$(PROGRAM1_ELF) $(PROGRAM1_OBJ)
 
-
-kernel: elf_test program1 program2
+kernel: 
 	$(CC) $(CFLAGS) $(KERNEL_C) -o $(KERNEL_O)
 	$(CC) $(CFLAGS) $(KEYBOARD_C) -o $(KEYBOARD_O)
 	$(CC) $(CFLAGS) $(VGA_C) -o $(VGA_O)
@@ -143,7 +143,7 @@ kernel: elf_test program1 program2
 	nasm -f elf32 $(GDT_FLUSH_ASM) -o $(GDT_FLUSH_O)
 	nasm -f elf32 $(ENTER_USER_MODE_ISER) -o $(ENTER_USER_MODE_ISER_O)
 	nasm -f elf32 $(SYCALL_HANDELER_ISER) -o $(SYCALL_HANDELER_ISER_O)
-	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) $(TSS_FLUSH_O) $(GDT_FLUSH_O) $(TSS_O) $(USER_SPACE_O) $(SYSCALL_O) $(ENTER_USER_MODE_ISER_O) $(SYCALL_HANDELER_ISER_O) $(USER_TEST_O) $(ELF) $(ELF_O) $(PROGRAM1_OBJ) $(PROGRAM2_OBJ) $(ELF_TEST_OBJ)
+	$(LD) $(LDFLAGS) -o $(KERNEL) $(KERNEL_ENTRY_O) $(KEYBOARD_ISR_O) $(PMM_ISR_O) $(PIT_ISR_O) $(KERNEL_O) $(KEYBOARD_O) $(PIT_O) $(VGA_O) $(IDT_O) $(PMM_O) $(TESTS_O) $(PROCESS_O) $(RESTORE_ESP_O) $(EXCEPTION_ISR_O) $(TSS_FLUSH_O) $(GDT_FLUSH_O) $(TSS_O) $(USER_SPACE_O) $(SYSCALL_O) $(ENTER_USER_MODE_ISER_O) $(SYCALL_HANDELER_ISER_O) $(USER_TEST_O) $(ELF_O) $(ELF_TEST_OBJ) $(PROGRAM1_OBJ)
 	objcopy -O binary $(KERNEL) $(KERNEL_BIN)
 
 image: boot kernel

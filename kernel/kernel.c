@@ -18,6 +18,8 @@
 #define TIME_POS 160
 #define up_pos 0
 #define start_pos 240
+#define COMMAND_SIZE 128
+
 
 
 //avoid ide error
@@ -62,6 +64,12 @@ static inline void remap_pic(void){
 //keyboard handler
 __attribute__((used, externally_visible))
 int last_key;
+
+
+char command[COMMAND_SIZE];
+int command_index = 0;
+int command_ready = 0;
+
 void keyboard_handler(void){
     int c = read();
     last_key = c;
@@ -76,15 +84,20 @@ void keyboard_handler(void){
         i = i - j;
         move(i);
         j = 0;
+        command[command_index] = '\0';
+        command_ready = 1;
     }else if (c == ' ') {
         i++;
         j++;
         move(i);
+        command[command_index++] = c; 
     }else if (c == '\b') {
         i--;
         j--;
         clear(i);
         move(i);
+        command[command_index] = '\0';
+
     }else if(c == KEY_UP){
         i = i - 80;
         move(i);
@@ -109,6 +122,7 @@ void keyboard_handler(void){
         i++;
         j++;
         move(i);
+        command[command_index++] = c; 
     }
     outb(0x20, 0x20);
 }

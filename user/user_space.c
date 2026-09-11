@@ -2,6 +2,7 @@
 #include "../kernel/asm_operation.h"
 #include "user_test.h"
 #include "user_space.h"
+#include "shell.h"
 
 
 void write_string(char *str){
@@ -114,15 +115,9 @@ extern unsigned char _binary_user_program1_elf_end[];
 void user_main(){
     write_string("hello to your space");
     process_t *p1 = user_create_process(user_up_time, PROCESS_USER);
-    write_string("Before exec\n");
 
-    int ret = user_exec(_binary_user_program1_elf_start);
+    process_t *shell_process = user_create_process(shell, PROCESS_USER);
 
-    write_string("After exec\n");
-
-    if (ret < 0) {
-        write_string("exec failed\n");
-    }
     while(1){     
         user_yield();
     }

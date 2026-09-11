@@ -22,20 +22,26 @@ void empty_string(){
         command[k] = '\0';
 }
 
-void shell(){
-    if (command_ready == 1){
-        command_exec(command);
-
-        command_ready = 0;
-        command_index = 0;
-        empty_string();
-
-        write_string("my>>os: ");
-    }
-}
-
 void command_exec(char *command){
     if(strcmp(command, "hello") == 0){
         user_exec(_binary_user_hello_elf_start);
+    }
+}
+
+void shell(void) {
+    write_string("my>>os: ");
+
+    while (1) {
+        if (command_ready == 1) {
+            command_exec(command);
+
+            command_ready = 0;
+            command_index = 0;
+            empty_string();
+
+            write_string("my>>os: ");
+        }
+
+        user_yield();
     }
 }

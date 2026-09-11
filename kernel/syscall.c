@@ -211,6 +211,13 @@ int sys_exec(void *file){
 
     p->regs->eip = entry;
     p->regs->esp = USER_STACK_TOP;
+    p->regs->ebp = 0;
+
+    uint32_t phy = allocate(4096);
+    if (phy == 0) return -1;
+    map_page(phy, USER_STACK_TOP - 4096, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
+    p->regs->user_esp = USER_STACK_TOP; 
+    
     return 0;
 }
 

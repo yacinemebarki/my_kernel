@@ -24,7 +24,16 @@ void empty_string(){
 
 void command_exec(char *command){
     if(strcmp(command, "hello") == 0){
-        user_exec(_binary_user_hello_elf_start);
+        int pid = user_fork();
+
+        if (pid == 0){
+            user_exec(_binary_user_hello_elf_start);
+            user_exit(1);
+        }
+        else{
+            int status;
+            user_wait(&status);
+        }
     }
 }
 

@@ -3,6 +3,7 @@ BITS 16
 
 CODE_OFFSET equ 0x08
 DATA_OFFSET equ 0x10
+KERNEL_SECTORS equ 134
 
 mmap_ent equ 0x500
 
@@ -63,6 +64,29 @@ failed:
     stc
     ret
 
+
+dap:
+    db 16                  
+    db 0                  
+
+dap_count:
+    dw 64                  
+
+dap_offset:
+    dw 0                   
+
+dap_segment:
+    dw 0x1000              
+
+dap_lba_low:
+    dd 1                  
+
+dap_lba_high:
+    dd 0
+
+kernel_remaining:
+    dw KERNEL_SECTORS
+
 start:
     cli
     mov [boot_drive], dl
@@ -76,19 +100,80 @@ start:
     call do_e820
     jc disk_error
 
-    mov ax, 0x1000
-    mov es, ax
-    xor bx, bx
 
-    mov ah, 0x02      
-    mov al, 118
-    mov ch, 0         
-    mov cl, 2        
-    mov dh, 0         
+
+    mov word [dap_count], 64
+
+    mov word [dap_offset], 0
+    mov word [dap_segment], 0x1000
+
+    mov dword [dap_lba_low], 1
+    mov dword [dap_lba_high], 0
+
+    mov word [kernel_remaining], KERNEL_SECTORS
+
+read_kernel:
+
+
+
+    cmp word [kernel_remaining], 64
+    jae .read_64
+
+    mov ax, [kernel_remaining]
+    mov [dap_count], ax
+    jmp .do_read
+
+.read_64:
+    mov word [dap_count], 64
+
+.do_read:
+
+    
+
+    mov ah, 0x42
     mov dl, [boot_drive]
+    mov si, dap
 
     int 0x13
     jc disk_error
+
+
+
+    mov ax, [dap_count]
+    sub [kernel_remaining], ax
+
+
+    cmp word [dap_count], 64
+    jne .small_read
+
+
+
+    add word [dap_segment], 0x2000
+    jmp .advance_lba
+
+.small_read:
+
+
+    mov ax, [dap_count]
+    mov bx, 32
+    mul bx
+
+    add [dap_segment], ax
+
+.advance_lba:
+
+    
+
+    xor eax, eax
+    mov ax, [dap_count]
+
+    add [dap_lba_low], eax
+
+
+    cmp word [kernel_remaining], 0
+    jne read_kernel
+
+
 
     cli
     lgdt [gdt_descriptor]
@@ -96,6 +181,9 @@ start:
     mov eax, cr0
     or eax, 1
     mov cr0, eax
+
+    jmp CODE_OFFSET:protected_mode
+   mov cr0, eax
 
     jmp CODE_OFFSET:protected_mode
 

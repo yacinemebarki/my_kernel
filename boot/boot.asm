@@ -148,7 +148,7 @@ read_kernel:
 
 
 
-    add word [dap_segment], 0x2000
+    add word [dap_segment], 0x800
     jmp .advance_lba
 
 .small_read:

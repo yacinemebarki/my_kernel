@@ -200,16 +200,14 @@ int sys_fork(registers_t *regs){
     return child->pid;
 }
 
+extern unsigned char _binary_user_hello_elf_start[];
+
 int sys_exec(void *file, registers_t *regs){
+
     process_t *p = current_process;
 
     uint32_t entry = (uint32_t)elf_load_file(file);
 
-    print_string("\nEXEC ENTRY = ", &i, &j);
-    print_hex(entry, &i);
-
-    print_string("\nOLD EIP = ", &i, &j);
-    print_hex(regs->eip, &i);
 
     if(entry == 0){
         return -1;
@@ -223,11 +221,6 @@ int sys_exec(void *file, registers_t *regs){
     map_page(phy, USER_STACK_TOP - 4096, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
     regs->user_esp = USER_STACK_TOP; 
 
-    print_string("\nNEW EIP = ", &i, &j);
-    print_hex(regs->eip, &i);
-
-    print_string("\nNEW ESP = ", &i, &j);
-    print_hex(regs->user_esp, &i);
     
     return 0;
 }

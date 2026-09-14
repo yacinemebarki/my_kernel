@@ -96,9 +96,7 @@ int user_wait(int *status){
 int user_fork(){
     int pid;
     __asm__ volatile("int $0x080": "=a"(pid): "a"(SYS_FORK));
-    write_string("the pid returned= ");
-    write_number(pid);
-    write_string("\n");
+    
     return pid;
 }
 

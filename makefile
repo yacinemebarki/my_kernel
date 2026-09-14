@@ -140,7 +140,7 @@ program1: program2 user_space_lib
 shell: user_space_lib
 	$(CC) $(CFLAGS) $(SHELL_C) -o $(SHELL_O)
 
-kernel: $(PROGRAM1_OBJ) $(ELF_TEST_OBJ) $(SHELL_O)
+kernel: $(PROGRAM1_OBJ) $(ELF_TEST_OBJ) $(SHELL_O) $(HELLO_OBJ)
 	$(CC) $(CFLAGS) $(KERNEL_C) -o $(KERNEL_O)
 	$(CC) $(CFLAGS) $(KEYBOARD_C) -o $(KEYBOARD_O)
 	$(CC) $(CFLAGS) $(VGA_C) -o $(VGA_O)

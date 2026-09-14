@@ -45,13 +45,11 @@ int check_elf_supported(Elf32_Ehdr *hdr){
         print_string("not existing type \n", &i, &j);
         return 0;
     }
-    print_string("succesed check \n", &i, &j);
     return 1;
 }
 
 void load_segment(Elf32_Phdr *ph, void *file){
 
-    print_string(" end: ", &i, &j);
     uint32_t segment_start = ph->p_vaddr & 0xFFFFF000;
     uint32_t segment_end = (ph->p_vaddr + ph->p_memsz + 0xFFF) & 0xFFFFF000;
 

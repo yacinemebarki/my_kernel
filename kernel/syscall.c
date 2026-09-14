@@ -200,23 +200,34 @@ int sys_fork(registers_t *regs){
     return child->pid;
 }
 
-int sys_exec(void *file){
+int sys_exec(void *file, registers_t *regs){
     process_t *p = current_process;
 
     uint32_t entry = (uint32_t)elf_load_file(file);
+
+    print_string("\nEXEC ENTRY = ", &i, &j);
+    print_hex(entry, &i);
+
+    print_string("\nOLD EIP = ", &i, &j);
+    print_hex(regs->eip, &i);
 
     if(entry == 0){
         return -1;
     }
 
-    p->regs->eip = entry;
-    p->regs->esp = USER_STACK_TOP;
-    p->regs->ebp = 0;
+    regs->eip = entry;
+    regs->ebp = 0;
 
     uint32_t phy = allocate(4096);
     if (phy == 0) return -1;
     map_page(phy, USER_STACK_TOP - 4096, PAGE_PRESENT | PAGE_WRITE | PAGE_USER);
-    p->regs->user_esp = USER_STACK_TOP; 
+    regs->user_esp = USER_STACK_TOP; 
+
+    print_string("\nNEW EIP = ", &i, &j);
+    print_hex(regs->eip, &i);
+
+    print_string("\nNEW ESP = ", &i, &j);
+    print_hex(regs->user_esp, &i);
     
     return 0;
 }
@@ -278,9 +289,7 @@ void syscall_dispatch(registers_t *regs){
             break;
 
         case SYS_EXEC:
-            regs->eax = sys_exec((void *)regs->ebx);
-            print_string("\nthe result of exec", &i, &j);
-            print_number((int) regs->eax, &i);
+            regs->eax = sys_exec((void *)regs->ebx, regs);
             break;
         default:
             break;

@@ -1,113 +1,161 @@
 # mini_kernel
 
-A minimal x86 (32-bit) hobby bootloader + kernel written in NASM and C.
+mini_kernel is a small 32-bit x86 educational operating system written in NASM and C. It is designed to teach low-level concepts such as booting, protected mode, interrupts, memory management, ELF loading, and basic user-space execution.
 
 ## Overview
 
-This repository builds a raw disk image (`disk.img`) containing a 512-byte boot sector and a simple protected-mode kernel. It is intended as a learning project for low-level x86 systems programming (GDT/IDT, paging, basic drivers, simple scheduler, and user-mode entry).
+The project builds a raw disk image containing a boot sector and a minimal protected-mode kernel. It is intentionally small and approachable, making it a good base for learning how an OS starts, loads code, handles processes, and interacts with hardware.
 
-## Features
+## Current features
 
-- **Protected-mode boot:** Boot sector → protected mode with GDT/TSS setup (`boot/boot.asm`, `kernel/gdt_flush.asm`, `kernel/tss.c`).
-- **Paging & virtual memory:** Basic page directory/table setup and mapping helpers (`kernel/pagging.asm`, `kernel/pmm.c`).
-- **Interrupts & exceptions:** IDT setup and handlers for keyboard, PIT, and CPU faults (`kernel/idt.c`, `kernel/keyboard_isr.asm`, `kernel/irqo.asm`, `kernel/exception.asm`).
-- **Drivers (VGA & keyboard):** Text console (cursor, wrapping, clear, backspace) and keyboard input parsing (`kernel/vga.c`, `kernel/keyboard.c`).
-- **Scheduler / context switching:** Timer-driven, simple process switching support and stack restore trampoline (`kernel/process.c`, `kernel/restore_esp.asm`).
-- **ELF user programs:** 32-bit ELF validation, segment loading, and process creation from embedded ELF binaries (`kernel/elf.c`, `kernel/elf.h`, `user/elf_test.c`).
-- **User-space process lifecycle:** User-mode creation, exit, yield, sleep, `fork`, `wait`, `exec`, and parent/child PID handling through a syscall interface (`kernel/syscall.c`, `user/user_space.c`).
-- **Memory allocators & tests:** Page allocator, `kmalloc`/`kfree`, inspection helpers and an in-kernel test suite (`kernel/pmm.c`, `kernel/tests.c`).
-- **Build/run tooling:** `make` builds `disk.img`, `make run` launches QEMU; build steps and sources are in the `makefile`.
+mini_kernel already includes a solid base for a minimalist x86 operating system. The current implementation focuses on early boot, processor setup, memory management, and basic user-mode execution.
 
-### Recent additions
+### Boot and CPU startup
 
-This kernel now supports loading and running user programs packaged as ELF executables. The loader validates ELF headers, loads program segments into memory, and creates a user process from the resulting image. In addition, the syscall layer now exposes a small user-space process API for creating tasks, yielding execution, sleeping, waiting on child processes, forking, and replacing the current image with a new ELF program.
+- Protected-mode boot process with GDT setup
+- BIOS memory map collection via E820
+- Basic kernel loading from disk using BIOS LBA reads
+- Transition from 16-bit real mode into 32-bit protected mode
+- TSS and task-switch related setup for user mode
+
+### Memory and process management
+
+- Basic page frame / physical memory management
+- Simple allocator and memory inspection helpers
+- Scheduler and context switching support for cooperative task execution
+- Process lifecycle helpers including creation, exit, wait, sleep, and yield semantics
+- User-space entry and return-to-user flow
+
+### Hardware and device support
+
+- VGA text-mode console driver
+- Keyboard interrupt handling and input support
+- PIT timer integration for scheduling and timing primitives
+- Exception and interrupt dispatch infrastructure
+
+### Userland and ELF loading
+
+- ELF user program loading and execution
+- User-mode syscall interface
+- Process creation from ELF images
+- Example user programs and shell-like environment
+
+### Kernel tooling and workflow
+
+- Build system for assembling bootloader and kernel objects
+- QEMU-based execution for testing and debugging
+- In-kernel test helpers and debugging-oriented utilities
+
+These features are intentionally small and educational, which makes the codebase easier to follow while still demonstrating how a real kernel is assembled.
+
+## Project structure
+
+- boot/ — bootloader source and startup code
+- kernel/ — kernel logic, drivers, scheduler, memory, and syscall code
+- user/ — sample user programs and user-space utilities
+- link.ld — linker script
+- makefile — build instructions and target definitions
 
 ## Prerequisites
 
-- `nasm`
-- `gcc` with multilib support (`-m32`) and `binutils`
-- `qemu-system-i386` (for running the image)
-
-On Debian/Ubuntu you can install the essentials with:
+Install the dependencies needed to build and run the OS:
 
 ```bash
 sudo apt install nasm gcc-multilib binutils qemu-system-x86
 ```
 
-## Quick build
+Required tools:
 
-From the project root:
+- nasm
+- gcc with 32-bit support
+- ld / binutils
+- qemu-system-i386
+
+## Build
+
+From the repository root:
 
 ```bash
 make
 ```
 
-This builds the boot sector and kernel, then creates `disk.img`.
+This creates the boot sector and kernel artifacts and produces a raw disk image called `disk.img`.
 
-## Run (QEMU)
-
-- Run with the provided Makefile target:
+## Run
 
 ```bash
 make run
 ```
 
-- Or run directly:
+Or directly:
 
 ```bash
 qemu-system-i386 -drive format=raw,file=disk.img
 ```
 
-## Debugging with GDB
+## Debugging
 
-To debug the kernel with GDB, start QEMU waiting for a GDB connection:
+Start QEMU with a GDB stub:
 
 ```bash
 qemu-system-i386 -S -gdb tcp::1234 -drive format=raw,file=disk.img
 ```
 
-Then connect from another terminal:
+Then connect in another terminal:
 
 ```bash
 gdb -q -ex "target remote :1234" kernel/kernel.elf
 ```
 
-This pauses the guest until the debugger connects (`-S`) and listens on TCP port 1234 for GDB.
-
 ## Makefile targets
 
-- `all` / `image`: build the boot sector and kernel and produce `disk.img` (default `make` runs this).
-- `boot`: assemble `boot/boot.asm` → `boot/boot.bin`.
-- `kernel`: compile and link kernel C/ASM sources → `kernel.elf` and `kernel.bin`.
-- `run`: launch `disk.img` in QEMU.
-- `clean`: remove build artifacts.
+- `make` / `make all` — build everything
+- `make boot` — assemble the boot sector
+- `make kernel` — build kernel components and link ELF binaries
+- `make run` — launch the OS in QEMU
+- `make clean` — remove generated files
 
-See the `makefile` for the full list of source files used during the build.
+## OS TODO roadmap
 
-## Tests
+This project is intentionally small, but there are several areas where contributors can help extend it. The following features are great candidates for new pull requests and experiments:
 
-There is a small in-kernel test suite under `kernel/tests.c` / `kernel/tests.h`. Test helpers and primitives live in `kernel/pmm.c` and related files. Tests can be enabled from the kernel entry point if desired (see `kernel/kernel.c`).
+- [ ] Shell arguments
+- [ ] ps command
+- [ ] File descriptors
+- [ ] Pipe support
+- [ ] stdin/stdout redirection
+- [ ] Filesystem
+- [ ] Better scheduler
+- [ ] Signals
+- [ ] Dynamic memory improvements
+- [ ] SMP
+- [ ] Networking
 
-## Project structure (high-level)
+## Good contribution areas
 
-- `boot/` — boot sector sources (`boot.asm`)
-- `kernel/` — kernel sources (C and assembly)
-- `user/` — user-space helpers and sample user programs
+If you want to contribute, a few particularly useful areas are:
 
-Key kernel subsystems included:
-- Protected-mode entry, GDT/TSS setup
-- IDT and basic interrupt handlers (keyboard, PIT)
-- Simple physical memory manager and paging helpers
-- VGA text console driver
-- Minimal process switching / scheduler
-- User-mode entry and syscall handler
+- userland shell and command parsing
+- process management and scheduler improvements
+- ELF loading and memory safety
+- keyboard/console UX improvements
+- documentation and debugging notes
+- kernel testing and cleanup
 
 ## Contributing
 
-Contributions, bug reports, and suggestions are welcome — open an issue or submit a pull request. Keep changes small and focused.
+Contributions are welcome. A good workflow is:
+
+1. Fork the repository.
+2. Create a focused feature branch.
+3. Keep changes small and understandable.
+4. Build the project with `make`.
+5. Open a pull request with a clear explanation of the change.
+
+Please keep patches targeted and document any new behavior or limitations in the README or relevant source comments.
 
 ## License
 
-This project is provided for educational purposes. No explicit license is included; add one if you intend to share or accept contributions.
+This project is provided for educational and experimental purposes. There is no explicit license file yet, so if you plan to distribute or accept external contributions widely, it is recommended to add one.
 
 ---
